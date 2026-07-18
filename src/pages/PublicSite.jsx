@@ -9,14 +9,7 @@ import React, {
 } from "react";
 import { collection, getDocs, addDoc, getDoc, query, where, serverTimestamp, doc } from "firebase/firestore";
 import { db } from "../firebase/config";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValue,
-  useMotionValueEvent,
-  animate,
-} from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ShoppingBag,
   X,
@@ -35,9 +28,10 @@ import {
   Facebook,
   Twitter,
   Check,
-  Leaf,
+  Shield,
   Award,
   Users,
+  Truck,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════════
@@ -309,9 +303,9 @@ function useReveal() {
    IMAGES
 ═══════════════════════════════════════════════ */
 const IMG = {
-  hero:       "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1600&q=85&auto=format&fit=crop",
-  about:      "https://images.unsplash.com/photo-1517433670267-08bbd4be890f?w=900&q=85&auto=format&fit=crop",
-  aboutSmall: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=600&q=85&auto=format&fit=crop",
+  hero:       "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1600&q=85&auto=format&fit=crop",
+  about:      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&q=85&auto=format&fit=crop",
+  aboutSmall: "https://images.unsplash.com/photo-1523381294911-8d3cead13475?w=600&q=85&auto=format&fit=crop",
   rev1:       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=85&auto=format&fit=crop&crop=face",
   rev2:       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=85&auto=format&fit=crop&crop=face",
   rev3:       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=85&auto=format&fit=crop&crop=face",
@@ -346,100 +340,100 @@ const FEAT1 = "https://images.unsplash.com/photo-1559620192-032c4bc4674e?w=600&q
 const fallbackImg = (cat) => CAT_IMGS[cat] || FEAT1;
 
 const MENU_DATA = [
-  { id:  1, category: "Category A",    name: "Chocolate Fudge",              price: 920  },
-  { id:  2, category: "Category A",    name: "Chocolate Caramel",            price: 920  },
-  { id:  3, category: "Category B",  name: "Double Chocolate Fudge",       price: 1680 },
-  { id:  4, category: "Category B",  name: "Butter Scotch Caramel Crunch", price: 1680 },
-  { id:  5, category: "Category B",  name: "Pistachio Three Milk",         price: 1850 },
-  { id:  6, category: "Category B",  name: "Bonello Three Milk",           price: 1850 },
-  { id:  7, category: "Category B",  name: "Milky Malt",                   price: 1850 },
-  { id:  8, category: "Category B",  name: "Chocolate Fudge",              price: 1850 },
-  { id:  9, category: "Category B",  name: "Chocolate Caremal",            price: 1890 },
-  { id: 10, category: "Category B",  name: "Chocolate Nutela",             price: 2160 },
-  { id: 11, category: "Category C", name: "Chocolate Black Forest",      price: 1290 },
-  { id: 12, category: "Category C", name: "Chocolate Gunash",            price: 1290 },
-  { id: 13, category: "Category C", name: "Chocolate Cadbury",           price: 2160 },
-  { id: 14, category: "Category C", name: "Red Velvet",                  price: 2160 },
-  { id: 15, category: "Category C", name: "Lotus Biscoff",               price: 2160 },
-  { id: 16, category: "Category C", name: "Pine Apple Fresh Cream",      price: 1750 },
-  { id: 17, category: "Category C", name: "Three Milk",                  price: 1890 },
-  { id: 18, category: "Category D",  name: "Chocolate Fudge",              price: 2770 },
-  { id: 19, category: "Category D",  name: "Chocolate Caremal",            price: 2800 },
-  { id: 20, category: "Category D",  name: "Chocolate Nutela",             price: 2980 },
-  { id: 21, category: "Category D",  name: "Chocolate Black Forest",       price: 2810 },
-  { id: 22, category: "Category D",  name: "Chocolate Gunash",             price: 2810 },
-  { id: 23, category: "Category D",  name: "Chocolate Cadbury",            price: 2980 },
-  { id: 24, category: "Category D",  name: "Red Velvet",                   price: 2980 },
-  { id: 25, category: "Category D",  name: "Lotus Biscoff",                price: 2980 },
-  { id: 26, category: "Category D",  name: "Pineapple Fresh Cream",        price: 2670 },
-  { id: 27, category: "Category D",  name: "Three Milk",                   price: 2810 },
-  { id: 28, category: "Category E",    name: "Dream Cake",                   price: 550  },
-  { id: 29, category: "Category E",    name: "Lawa Cake",                    price: 600  },
-  { id: 30, category: "Category F",      name: "Milky Malt",                   price: 250  },
-  { id: 31, category: "Category F",      name: "Red Velvet",                   price: 250  },
-  { id: 32, category: "Category F",      name: "Three Milk",                   price: 250  },
-  { id: 33, category: "Category G",         name: "Choclate Filled donut",        price: 250  },
-  { id: 34, category: "Category H",      name: "Mango Malai Cake 1.5 Pounds",  price: 1250 },
-  { id: 35, category: "Category H",      name: "Mango Three Milk Cake",        price: 950  },
-  { id: 36, category: "Category I",        name: "Nutella",                      price: 350  },
-  { id: 37, category: "Category I",        name: "Lotus",                        price: 350  },
-  { id: 38, category: "Category I",        name: "Red Velvet",                   price: 350  },
-  { id: 39, category: "Category I",        name: "Caramel",                      price: 350  },
-  { id: 40, category: "Category I",        name: "Nutella",                      price: 440  },
-  { id: 41, category: "Category I",        name: "Lotus Biscoff",                price: 450  },
-  { id: 42, category: "Category I",        name: "Three Milk",                   price: 400  },
-  { id: 43, category: "Category J",         name: "Bonello Three Milk",           price: 500  },
-  { id: 44, category: "Category J",         name: "Pistachio Three Milk",         price: 550  },
-  { id: 45, category: "Category J",         name: "Lazy Cat",                     price: 450  },
-  { id: 46, category: "Category J",         name: "Matilda Cake",                 price: 450  },
-  { id: 47, category: "Category K",    name: "Creampuff Box 300gm",          price: 450  },
-  { id: 48, category: "Category K",    name: "Chocolate Puff Box 300 gm",    price: 450  },
-  { id: 49, category: "Category L",    name: "Oreo",                         price: 550  },
-  { id: 50, category: "Category L",    name: "Red Velvet",                   price: 600  },
-  { id: 51, category: "Category L",    name: "Chocolate Fudge",              price: 575  },
-  { id: 52, category: "Category L",    name: "Lotus Biscoff",                price: 575  },
-  { id: 53, category: "Category L",    name: "Lotus",                        price: 300  },
-  { id: 54, category: "Category L",    name: "Nutella",                      price: 250  },
-  { id: 55, category: "Category M", name: "Oreo",                        price: 230  },
-  { id: 56, category: "Category M", name: "Cadbury",                     price: 300  },
-  { id: 57, category: "Category M", name: "Nuty",                        price: 280  },
-  { id: 58, category: "Category M", name: "Classic Fudge",               price: 250  },
-  { id: 59, category: "Category M", name: "Oreo Fudge",                  price: 230  },
-  { id: 60, category: "Category M", name: "Double Chocolate",            price: 245  },
-  { id: 61, category: "Category N",      name: "Nutella",                      price: 250  },
-  { id: 62, category: "Category N",      name: "Oreo",                         price: 230  },
-  { id: 63, category: "Category N",      name: "Lotus",                        price: 240  },
-  { id: 64, category: "Category N",      name: "Chocolate Fudge",              price: 240  },
-  { id: 65, category: "Category O",     name: "Vanilla",                      price: 235  },
-  { id: 66, category: "Category O",     name: "Chocolate",                    price: 250  },
-  { id: 67, category: "Category P",         name: "Lemon",                        price: 250  },
-  { id: 68, category: "Category P",         name: "Mango",                        price: 250  },
-  { id: 69, category: "Category Q",  name: "Chicken Mayo Sandwich",        price: 250  },
-  { id: 70, category: "Category Q",  name: "Chicken Tikka Sandwich",       price: 280  },
-  { id: 71, category: "Category Q",  name: "Shami Kabab",                  price: 120  },
-  { id: 72, category: "Category Q",  name: "Macroni 250 g",                price: 280  },
-  { id: 73, category: "Category R", name: "Swiss Pound Cake",          price: 760  },
-  { id: 74, category: "Category R", name: "Sugar Free Pound Cake",     price: 960  },
-  { id: 75, category: "Category R", name: "Oat Cookies 176 gms",       price: 845  },
-  { id: 76, category: "Category R", name: "Soft Cookies gms",          price: 845  },
-  { id: 77, category: "Category R", name: "Gluten Free Cake Rusk grms",price: 650  },
-  { id: 78, category: "Category R", name: "Premium Wheat Delight 1Kg",  price: 1980 },
-  { id: 79, category: "Category S",        name: "Hot Coffee",                   price: 250  },
-  { id: 80, category: "Category S",        name: "Cold Coffee",                  price: 290  },
+  { id:  1, category: "Category A",  name: "Product A1",   price: 920  },
+  { id:  2, category: "Category A",  name: "Product A2",   price: 920  },
+  { id:  3, category: "Category B",  name: "Product B1",   price: 1680 },
+  { id:  4, category: "Category B",  name: "Product B2",   price: 1680 },
+  { id:  5, category: "Category B",  name: "Product B3",   price: 1850 },
+  { id:  6, category: "Category B",  name: "Product B4",   price: 1850 },
+  { id:  7, category: "Category B",  name: "Product B5",   price: 1850 },
+  { id:  8, category: "Category B",  name: "Product B6",   price: 1850 },
+  { id:  9, category: "Category B",  name: "Product B7",   price: 1890 },
+  { id: 10, category: "Category B",  name: "Product B8",   price: 2160 },
+  { id: 11, category: "Category C",  name: "Product C1",   price: 1290 },
+  { id: 12, category: "Category C",  name: "Product C2",   price: 1290 },
+  { id: 13, category: "Category C",  name: "Product C3",   price: 2160 },
+  { id: 14, category: "Category C",  name: "Product C4",   price: 2160 },
+  { id: 15, category: "Category C",  name: "Product C5",   price: 2160 },
+  { id: 16, category: "Category C",  name: "Product C6",   price: 1750 },
+  { id: 17, category: "Category C",  name: "Product C7",   price: 1890 },
+  { id: 18, category: "Category D",  name: "Product D1",   price: 2770 },
+  { id: 19, category: "Category D",  name: "Product D2",   price: 2800 },
+  { id: 20, category: "Category D",  name: "Product D3",   price: 2980 },
+  { id: 21, category: "Category D",  name: "Product D4",   price: 2810 },
+  { id: 22, category: "Category D",  name: "Product D5",   price: 2810 },
+  { id: 23, category: "Category D",  name: "Product D6",   price: 2980 },
+  { id: 24, category: "Category D",  name: "Product D7",   price: 2980 },
+  { id: 25, category: "Category D",  name: "Product D8",   price: 2980 },
+  { id: 26, category: "Category D",  name: "Product D9",   price: 2670 },
+  { id: 27, category: "Category D",  name: "Product D10",  price: 2810 },
+  { id: 28, category: "Category E",  name: "Product E1",   price: 550  },
+  { id: 29, category: "Category E",  name: "Product E2",   price: 600  },
+  { id: 30, category: "Category F",  name: "Product F1",   price: 250  },
+  { id: 31, category: "Category F",  name: "Product F2",   price: 250  },
+  { id: 32, category: "Category F",  name: "Product F3",   price: 250  },
+  { id: 33, category: "Category G",  name: "Product G1",   price: 250  },
+  { id: 34, category: "Category H",  name: "Product H1",   price: 1250 },
+  { id: 35, category: "Category H",  name: "Product H2",   price: 950  },
+  { id: 36, category: "Category I",  name: "Product I1",   price: 350  },
+  { id: 37, category: "Category I",  name: "Product I2",   price: 350  },
+  { id: 38, category: "Category I",  name: "Product I3",   price: 350  },
+  { id: 39, category: "Category I",  name: "Product I4",   price: 350  },
+  { id: 40, category: "Category I",  name: "Product I5",   price: 440  },
+  { id: 41, category: "Category I",  name: "Product I6",   price: 450  },
+  { id: 42, category: "Category I",  name: "Product I7",   price: 400  },
+  { id: 43, category: "Category J",  name: "Product J1",   price: 500  },
+  { id: 44, category: "Category J",  name: "Product J2",   price: 550  },
+  { id: 45, category: "Category J",  name: "Product J3",   price: 450  },
+  { id: 46, category: "Category J",  name: "Product J4",   price: 450  },
+  { id: 47, category: "Category K",  name: "Product K1",   price: 450  },
+  { id: 48, category: "Category K",  name: "Product K2",   price: 450  },
+  { id: 49, category: "Category L",  name: "Product L1",   price: 550  },
+  { id: 50, category: "Category L",  name: "Product L2",   price: 600  },
+  { id: 51, category: "Category L",  name: "Product L3",   price: 575  },
+  { id: 52, category: "Category L",  name: "Product L4",   price: 575  },
+  { id: 53, category: "Category L",  name: "Product L5",   price: 300  },
+  { id: 54, category: "Category L",  name: "Product L6",   price: 250  },
+  { id: 55, category: "Category M",  name: "Product M1",   price: 230  },
+  { id: 56, category: "Category M",  name: "Product M2",   price: 300  },
+  { id: 57, category: "Category M",  name: "Product M3",   price: 280  },
+  { id: 58, category: "Category M",  name: "Product M4",   price: 250  },
+  { id: 59, category: "Category M",  name: "Product M5",   price: 230  },
+  { id: 60, category: "Category M",  name: "Product M6",   price: 245  },
+  { id: 61, category: "Category N",  name: "Product N1",   price: 250  },
+  { id: 62, category: "Category N",  name: "Product N2",   price: 230  },
+  { id: 63, category: "Category N",  name: "Product N3",   price: 240  },
+  { id: 64, category: "Category N",  name: "Product N4",   price: 240  },
+  { id: 65, category: "Category O",  name: "Product O1",   price: 235  },
+  { id: 66, category: "Category O",  name: "Product O2",   price: 250  },
+  { id: 67, category: "Category P",  name: "Product P1",   price: 250  },
+  { id: 68, category: "Category P",  name: "Product P2",   price: 250  },
+  { id: 69, category: "Category Q",  name: "Product Q1",   price: 250  },
+  { id: 70, category: "Category Q",  name: "Product Q2",   price: 280  },
+  { id: 71, category: "Category Q",  name: "Product Q3",   price: 120  },
+  { id: 72, category: "Category Q",  name: "Product Q4",   price: 280  },
+  { id: 73, category: "Category R",  name: "Product R1",   price: 760  },
+  { id: 74, category: "Category R",  name: "Product R2",   price: 960  },
+  { id: 75, category: "Category R",  name: "Product R3",   price: 845  },
+  { id: 76, category: "Category R",  name: "Product R4",   price: 845  },
+  { id: 77, category: "Category R",  name: "Product R5",   price: 650  },
+  { id: 78, category: "Category R",  name: "Product R6",   price: 1980 },
+  { id: 79, category: "Category S",  name: "Product S1",   price: 250  },
+  { id: 80, category: "Category S",  name: "Product S2",   price: 290  },
 ].map((p) => ({ ...p, img: fallbackImg(p.category), desc: "" }));
 
 const FEATURED = [
-  { ...MENU_DATA.find(p => p.id === 14), tag: "Fan Favourite", desc: "A customer favourite — beautifully presented and consistently excellent." },
-  { ...MENU_DATA.find(p => p.id === 28), tag: "Must Try",      desc: "Our signature item — light, distinctive, and impossible to pass up." },
+  { ...MENU_DATA.find(p => p.id === 14), tag: "Fan Favourite", desc: "A customer favourite — consistently excellent quality and great value." },
+  { ...MENU_DATA.find(p => p.id === 28), tag: "Must Try",      desc: "Our signature item — distinctive, reliable, and impossible to pass up." },
   { ...MENU_DATA.find(p => p.id === 44), tag: "Staff Pick",    desc: "A top recommendation from our team — premium quality, outstanding value." },
 ];
 
 const ALL_CATEGORIES = [...new Set(MENU_DATA.map(p => p.category))];
 
 const REVIEWS = [
-  { name: "Sana Malik",    img: IMG.rev1, stars: 5, role: "Lifestyle Blogger",     text: "The selection and quality here are unmatched. Every product I have ordered has exceeded my expectations. I keep coming back." },
-  { name: "Ahmed Raza",    img: IMG.rev2, stars: 5, role: "Regular Customer", text: "I ordered a gift for a friend and the packaging and quality were outstanding. The whole experience from checkout to delivery was flawless." },
-  { name: "Nadia Hussain", img: IMG.rev3, stars: 5, role: "Home Chef",        text: "This is my go-to store for quality finds. People always ask where I get them from. Your Store never disappoints." },
+  { name: "Sana Malik",    img: IMG.rev1, stars: 5, role: "Lifestyle Blogger",  text: "The selection and quality here are unmatched. Every product I have ordered has exceeded my expectations. I keep coming back." },
+  { name: "Ahmed Raza",    img: IMG.rev2, stars: 5, role: "Regular Customer",   text: "I ordered a gift for a friend and the packaging and quality were outstanding. The whole experience from checkout to delivery was flawless." },
+  { name: "Nadia Hussain", img: IMG.rev3, stars: 5, role: "Verified Buyer",     text: "This is my go-to store for quality finds. People always ask where I get them from. Your Store never disappoints." },
 ];
 
 const fmt = (n) => `Rs. ${n.toLocaleString()}`;
@@ -722,7 +716,7 @@ function SiteHead({ settings }) {
 
     setJsonLd("jsonld-localbusiness", {
       "@context":       "https://schema.org",
-      "@type":          ["Restaurant", "LocalBusiness"],
+      "@type":          ["Store", "LocalBusiness"],
       "name":           s.storeName || "Your Store",
       "description":    s.metaDescription || undefined,
       "url":            s.canonicalUrl    || undefined,
@@ -731,7 +725,7 @@ function SiteHead({ settings }) {
       "image":          s.ogImageUrl || s.heroBannerUrl || undefined,
       "logo":           s.logoUrl         || undefined,
       "priceRange":     s.priceRange      || "$$",
-      "servesCuisine":  s.cuisineType     || undefined,
+      "description":    s.metaDescription || undefined,
       "hasMap":         s.googleBusinessUrl || undefined,
       "address":        s.address ? {
         "@type":           "PostalAddress",
@@ -752,544 +746,120 @@ function SiteHead({ settings }) {
   return null;
 }
 
-/* ═══════════════════════════════════════════════
-   RESPONSIVE DOOR IMAGES HOOK
-═══════════════════════════════════════════════ */
-function useDoorImages() {
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.innerWidth < 768;
-  });
 
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    setIsMobile(mq.matches);
-    const handler = (e) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  return useMemo(() => ({
-    left:  isMobile ? "/mobile/Left-Door-Mobile.webp"  : "/desktop/Left-Door-Dekstop.webp",
-    right: isMobile ? "/mobile/Right-Door-Mobile.webp" : "/desktop/Right-Door-Dekstop.webp",
-  }), [isMobile]);
-}
 
 /* ═══════════════════════════════════════════════
-   DOOR BELL
-   PERF: Bell idle jiggle simplified to 3-keyframe CSS
-   animation instead of 13-keyframe Framer Motion loop.
-   Scroll rotation uses direct MotionValue assignment
-   inside a passive scroll listener (no React state).
+   HERO SECTION — SIMPLE E-COMMERCE
 ═══════════════════════════════════════════════ */
-function DoorBell({ doorsReady }) {
-  const [dropped, setDropped] = useState(false);
-
-  const scrollRot = useMotionValue(0);
-  const scrollOp  = useMotionValue(1);
-
-  useEffect(() => {
-    const heroHeight = window.innerHeight * 2.5;
-    const swingEnd   = heroHeight * 0.30;
-    const fadeEnd    = heroHeight * 0.28;
-
-    let rafId = null;
-    let lastY  = -1;
-
-    const tick = () => {
-      const y = window.scrollY;
-      if (y !== lastY) {
-        lastY = y;
-        scrollRot.set(Math.min(y / swingEnd, 1) * -90);
-        scrollOp.set(Math.max(0, 1 - y / fadeEnd));
-      }
-      rafId = requestAnimationFrame(tick);
-    };
-
-    rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
-  }, [scrollRot, scrollOp]);
-
-  const handleDropComplete = useCallback(() => setDropped(true), []);
-
-  return (
-    <motion.div
-      aria-hidden="true"
-      style={{
-        position:      "fixed",
-        top:           0,
-        left:          "50%",
-        zIndex:        1001,
-        originX:       "0px",
-        originY:       "0px",
-        rotate:        scrollRot,
-        opacity:       scrollOp,
-        pointerEvents: "none",
-        display:       "flex",
-        flexDirection: "column",
-        alignItems:    "center",
-        willChange:    "transform, opacity",
-      }}
-    >
-      <motion.div
-        style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-        initial={{ y: -240, opacity: 0 }}
-        animate={doorsReady ? {
-          y: 0, opacity: 1,
-          transition: { delay: 0.15, duration: 0.9, ease: [0.34, 1.42, 0.64, 1] },
-        } : {}}
-        onAnimationComplete={handleDropComplete}
-      >
-        {/* Cord */}
-        <div style={{
-          width: 1,
-          height: "clamp(50px, 7.5vh, 76px)",
-          background: "linear-gradient(to bottom, rgba(130,90,30,0.92) 0%, rgba(110,75,22,0.4) 100%)",
-          flexShrink: 0,
-        }} />
-
-        {/*
-          Idle jiggle — replaced 13-keyframe Framer animation with a simple
-          CSS animation class. Same visual feel, zero JS per-frame work.
-        */}
-        <div
-          style={{
-            originX:   "50%",
-            originY:   "0%",
-            marginTop: -1,
-            /* drop-shadow removed from animating element — applied to SVG directly */
-          }}
-        >
-          {/* CSS idle jiggle injected once */}
-          {dropped && (
-            <style>{`
-              @keyframes bellJiggle {
-                0%,100% { transform: rotate(0deg); }
-                8%       { transform: rotate(3.5deg); }
-                20%      { transform: rotate(-2.8deg); }
-                35%      { transform: rotate(2deg); }
-                50%      { transform: rotate(-1.2deg); }
-                65%      { transform: rotate(0.6deg); }
-              }
-              .bell-idle {
-                display: block;
-                animation: bellJiggle 7s ease-in-out infinite;
-                animation-delay: 0.2s;
-                transform-origin: 50% 0%;
-              }
-              @media (prefers-reduced-motion: reduce) { .bell-idle { animation: none; } }
-            `}</style>
-          )}
-          <svg
-            className={dropped ? "bell-idle" : undefined}
-            width="36" height="44" viewBox="0 0 36 44" fill="none"
-            style={{ filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.45))" }}
-          >
-            <defs>
-              <linearGradient id="b-body" x1="0" y1="0" x2="36" y2="0" gradientUnits="userSpaceOnUse">
-                <stop offset="0%"   stopColor="#A07025" />
-                <stop offset="38%"  stopColor="#E8C96A" />
-                <stop offset="100%" stopColor="#6B4812" />
-              </linearGradient>
-              <linearGradient id="b-sheen" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stopColor="rgba(255,255,255,0.16)" />
-                <stop offset="55%"  stopColor="rgba(255,255,255,0.04)" />
-                <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-              </linearGradient>
-              <linearGradient id="b-rim" x1="0" y1="0" x2="36" y2="0" gradientUnits="userSpaceOnUse">
-                <stop offset="0%"   stopColor="#7A5215" />
-                <stop offset="30%"  stopColor="#EDD476" />
-                <stop offset="70%"  stopColor="#EDD476" />
-                <stop offset="100%" stopColor="#7A5215" />
-              </linearGradient>
-            </defs>
-            <ellipse cx="18" cy="3.2" rx="3" ry="3.2" fill="#9A6E20" />
-            <ellipse cx="17.2" cy="2.3" rx="1.1" ry="1.3" fill="rgba(255,255,255,0.22)" />
-            <path d="M18 6 C9 6 3 13 3 21 L3 32 L33 32 L33 21 C33 13 27 6 18 6 Z" fill="url(#b-body)" />
-            <path d="M18 6 C9 6 3 13 3 21 L3 32 L33 32 L33 21 C33 13 27 6 18 6 Z" fill="url(#b-sheen)" />
-            <path d="M1 32 Q18 37.5 35 32" stroke="url(#b-rim)" strokeWidth="2.6" fill="none" strokeLinecap="round" />
-            <line x1="18" y1="32" x2="18" y2="37.5" stroke="#7A5215" strokeWidth="1.1" strokeLinecap="round" />
-            <circle cx="18" cy="40.5" r="3" fill="#8B6018" />
-            <circle cx="16.8" cy="39.4" r="0.9" fill="rgba(255,255,255,0.2)" />
-          </svg>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-/* ═══════════════════════════════════════════════
-   HERO SECTION — CINEMATIC IMAGE DOOR REVEAL
-   PERF improvements:
-   - Removed redundant `progress` MotionValue middleman
-   - Combined leftRotate/rightRotate from single scrollYProgress
-     instead of multi-source array (cheaper derivation)
-   - autoNudge merged additively inside a single useMotionValue
-   - drop-shadow REMOVED from rotating door panels (massive perf win)
-     — replaced with a static CSS box-shadow on wrapper
-   - glowOp elements reduced from 4 to 2 (merged full-bg + gap)
-   - All glow divs have will-change: opacity
-   - bgScale uses transform3d via framer (GPU-composited)
-   - Hero img gets fetchpriority="high" + decoding="sync" (above fold)
-═══════════════════════════════════════════════ */
-function HeroSection({ onDoorsReady, settings = {} }) {
-  const containerRef = useRef(null);
-  const doorImages   = useDoorImages();
-
-  const [leftLoaded,  setLeftLoaded]  = useState(false);
-  const [rightLoaded, setRightLoaded] = useState(false);
-  const doorsReady = leftLoaded && rightLoaded;
-
-  useEffect(() => {
-    if (doorsReady && onDoorsReady) onDoorsReady();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [doorsReady]);
-
-  // Preload door images imperatively
-  useEffect(() => {
-    setLeftLoaded(false);
-    setRightLoaded(false);
-    const imgL = new Image();
-    const imgR = new Image();
-    imgL.onload  = () => setLeftLoaded(true);
-    imgL.onerror = () => setLeftLoaded(true);
-    imgR.onload  = () => setRightLoaded(true);
-    imgR.onerror = () => setRightLoaded(true);
-    imgL.src = doorImages.left;
-    imgR.src = doorImages.right;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [doorImages.left, doorImages.right]);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  /* Auto-nudge: crack open ~12° after load, merged into final rotation */
-  const nudgeDeg = useMotionValue(0);
-  useEffect(() => {
-    if (!doorsReady) return;
-    const ctrl = animate(nudgeDeg, 12, {
-      delay: 0.3, duration: 2.2,
-      ease: [0.16, 1, 0.3, 1],
-    });
-    return () => ctrl.stop();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [doorsReady]);
-
-  const MAX_DEG = 100;
-
-  // Single transform per door from scrollYProgress (no intermediate MotionValue)
-  const leftRotate = useTransform(scrollYProgress, (p) =>
-    -Math.min(p * MAX_DEG + nudgeDeg.get(), MAX_DEG)
-  );
-  const rightRotate = useTransform(scrollYProgress, (p) =>
-    Math.min(p * MAX_DEG + nudgeDeg.get(), MAX_DEG)
-  );
-
-  // When nudge changes (during load animation before any scroll) we still need to update doors
-  // Subscribe nudgeDeg changes to invalidate the transforms
-  useMotionValueEvent(nudgeDeg, "change", () => {
-    // Framer Motion reads nudgeDeg.get() synchronously inside the transform fn
-    // Invalidating by poking scrollYProgress forces re-evaluation
-    const cur = scrollYProgress.get();
-    // no-op write to trigger re-computation if scrollY hasn't changed
-    // (framer caches; set a MotionValue we derived from to bust cache)
-    // Actually we just manually update leftRotate using set to be safe:
-    leftRotate.set(-Math.min(cur * MAX_DEG + nudgeDeg.get(), MAX_DEG));
-    rightRotate.set(Math.min(cur * MAX_DEG + nudgeDeg.get(), MAX_DEG));
-  });
-
-  const bgScale  = useTransform(scrollYProgress, [0, 1], [1.07, 1.0]);
-  const brandOp  = useTransform(scrollYProgress, [0.55, 0.82], [0, 1]);
-  const brandY   = useTransform(scrollYProgress, [0.55, 0.82], [36, 0]);
-  const btnOp    = useTransform(scrollYProgress, [0.70, 0.92], [0, 1]);
-  const btnY     = useTransform(scrollYProgress, [0.70, 0.92], [18, 0]);
-  const glowOp   = useTransform(scrollYProgress, [0, 0.55, 0.85], [1, 1, 0]);
-  const hintOp   = useTransform(scrollYProgress, [0, 0.08], [1, 0]);
-  const doorsOp  = useTransform(scrollYProgress, [0.85, 0.98], [1, 0]);
-
-  const scrollToMenu = useCallback(() =>
+function HeroSection({ settings = {} }) {
+  const scrollToShop = useCallback(() =>
     document.getElementById("featured")?.scrollIntoView({ behavior: "smooth" }),
   []);
 
   return (
     <section
-      ref={containerRef}
-      style={{ height: "250vh", position: "relative" }}
-      aria-label="Welcome to Your Store"
+      style={{ position: "relative", height: "100vh", minHeight: 560, overflow: "hidden" }}
+      aria-label={`Welcome to ${settings.storeName || "Your Store"}`}
     >
-      <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>
+      {/* Background image */}
+      <img
+        src={settings.heroBannerUrl || IMG.hero}
+        alt={`${settings.storeName || "Your Store"} hero`}
+        fetchPriority="high"
+        decoding="sync"
+        style={{
+          position: "absolute", top: 0, left: 0,
+          width: "100%", height: "100%",
+          objectFit: "cover", objectPosition: "center",
+          userSelect: "none", pointerEvents: "none",
+        }}
+        draggable={false}
+      />
+      {/* Dark overlay */}
+      <div aria-hidden="true" style={{
+        position: "absolute", inset: 0,
+        background: "linear-gradient(to bottom, rgba(20,8,2,0.48) 0%, rgba(20,8,2,0.30) 50%, rgba(20,8,2,0.60) 100%)",
+        pointerEvents: "none",
+      }} />
 
-        {/* Loading cover */}
-        <motion.div
-          aria-hidden="true"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: doorsReady ? 0 : 1 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-          style={{
-            position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-            background: "#2E1A0E",
-            zIndex: 50,
-            pointerEvents: doorsReady ? "none" : "all",
-            willChange: "opacity",
-          }}
-        >
-          <div style={{
-            position: "absolute", top: "50%", left: "50%",
-            transform: "translate(-50%, -50%)",
-            textAlign: "center",
-          }}>
-            <p style={{
-              fontFamily: FONT_DISPLAY,
-              fontSize: "clamp(32px, 8vw, 56px)",
-              fontWeight: 300,
-              color: C.gold,
-              letterSpacing: "0.18em",
-              /* Simple 2-keyframe pulse — cheaper than original */
-              animation: "fadeIn 1.8s ease infinite alternate",
-            }}>
-              {(settings.storeName || "YOUR STORE").toUpperCase()}
-            </p>
-            <div style={{
-              width: 36, height: 1,
-              background: `linear-gradient(to right, transparent, ${C.gold}, transparent)`,
-              margin: "12px auto 0",
-            }} />
-          </div>
-        </motion.div>
-
-        {/* Hero background — uses transform (GPU) for scale, NOT layout */}
-        <motion.div
-          style={{
-            position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-            scale: bgScale,
-            transformOrigin: "center center",
-            willChange: "transform",
-          }}
-        >
-          {/* fetchpriority + decoding=sync for LCP image */}
-          <img
-            src={settings.heroBannerUrl || IMG.hero}
-            alt={`${settings.storeName || "Your Store"} storefront`}
-            fetchPriority="high"
-            decoding="sync"
-            style={{
-              width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: "center",
-              display: "block",
-              userSelect: "none", pointerEvents: "none",
-            }}
-            draggable={false}
-          />
-          <div aria-hidden="true" style={{
-            position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-            background: "rgba(20,8,2,0.45)", pointerEvents: "none",
-          }} />
-          <div aria-hidden="true" style={{
-            position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-            background: "radial-gradient(ellipse 80% 75% at 50% 50%, transparent 35%, rgba(20,8,2,0.35) 100%)",
-            pointerEvents: "none",
-          }} />
-        </motion.div>
-
-        {/* Brand text behind the doors */}
-        <div style={{
-          position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-          zIndex: 3,
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          textAlign: "center", padding: "0 6%",
-          pointerEvents: "none",
+      {/* Content */}
+      <div style={{
+        position: "relative", zIndex: 2,
+        height: "100%",
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        textAlign: "center",
+        padding: "0 6%",
+      }}>
+        <p style={{
+          fontFamily: FONT_BODY, fontSize: "clamp(9px, 1.1vw, 11px)",
+          letterSpacing: "0.34em", textTransform: "uppercase",
+          color: C.goldLight, marginBottom: 20,
+          textShadow: "0 2px 12px rgba(0,0,0,0.6)",
+          animation: "fadeUp 0.7s ease 0.1s both",
         }}>
-          <motion.div style={{ opacity: brandOp, y: brandY, willChange: "transform, opacity" }}>
-            <p style={{
-              fontFamily: FONT_BODY,
-              fontSize: "clamp(9px, 1.1vw, 11px)",
-              letterSpacing: "0.34em", textTransform: "uppercase",
-              color: C.goldLight, marginBottom: 26,
-              textShadow: "0 2px 12px rgba(0,0,0,0.6)",
-            }}>
-              Est. 2026 &nbsp;&bull;&nbsp; Online Store
-            </p>
-            <h1 style={{
-              fontFamily: FONT_DISPLAY, fontWeight: 300,
-              fontSize: "clamp(58px, 13.5vw, 144px)",
-              lineHeight: 0.88, color: C.cream,
-              letterSpacing: "0.12em", marginBottom: 18,
-              textShadow: "0 4px 32px rgba(0,0,0,0.55)",
-            }}>
-              {(settings.storeName || "YOUR STORE").toUpperCase()}
-            </h1>
-            <div style={{
-              width: 52, height: 1,
-              background: `linear-gradient(to right, transparent, ${C.gold}, transparent)`,
-              margin: "0 auto 20px",
-            }} />
-            <p style={{
-              fontFamily: FONT_DISPLAY, fontStyle: "italic", fontWeight: 300,
-              fontSize: "clamp(15px, 2.6vw, 27px)",
-              color: C.goldLight, letterSpacing: "0.07em", marginBottom: 54,
-              textShadow: "0 2px 16px rgba(0,0,0,0.5)",
-            }}>
-              {settings.heroSubtitle || settings.tagline || "Premium Products"}
-            </p>
-          </motion.div>
-          <motion.div style={{ opacity: btnOp, y: btnY, pointerEvents: "auto", willChange: "transform, opacity" }}>
-            <button
-              className="btn-gold"
-              onClick={scrollToMenu}
-              style={{ fontSize: 11, letterSpacing: "0.16em", padding: "16px 40px", boxShadow: "0 8px 32px rgba(0,0,0,0.35)" }}
-            >
-              Shop Now <ArrowRight size={13} style={{ marginLeft: 4 }} />
-            </button>
-          </motion.div>
+          {settings.tagline || "Quality Products · Online Store"}
+        </p>
+        <h1 style={{
+          fontFamily: FONT_DISPLAY, fontWeight: 300,
+          fontSize: "clamp(42px, 10vw, 112px)",
+          lineHeight: 0.92, color: C.cream,
+          letterSpacing: "0.10em", marginBottom: 20,
+          textShadow: "0 4px 32px rgba(0,0,0,0.55)",
+          animation: "fadeUp 0.7s ease 0.2s both",
+        }}>
+          {(settings.storeName || "YOUR STORE").toUpperCase()}
+        </h1>
+        <div style={{
+          width: 52, height: 1,
+          background: `linear-gradient(to right, transparent, ${C.gold}, transparent)`,
+          margin: "0 auto 22px",
+          animation: "fadeIn 0.7s ease 0.35s both",
+        }} />
+        <p style={{
+          fontFamily: FONT_DISPLAY, fontStyle: "italic", fontWeight: 300,
+          fontSize: "clamp(15px, 2.4vw, 26px)",
+          color: C.goldLight, letterSpacing: "0.07em", marginBottom: 46,
+          textShadow: "0 2px 16px rgba(0,0,0,0.5)",
+          animation: "fadeUp 0.7s ease 0.3s both",
+        }}>
+          {settings.heroSubtitle || "Discover our curated collection of premium products."}
+        </p>
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", animation: "fadeUp 0.7s ease 0.45s both" }}>
+          <button
+            className="btn-gold"
+            onClick={scrollToShop}
+            style={{ fontSize: 11, letterSpacing: "0.16em", padding: "16px 40px", boxShadow: "0 8px 32px rgba(0,0,0,0.35)" }}
+          >
+            Shop Now <ArrowRight size={13} style={{ marginLeft: 4 }} />
+          </button>
+          <button
+            className="btn-primary"
+            onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
+            style={{ fontSize: 11, letterSpacing: "0.16em", padding: "16px 32px" }}
+          >
+            Our Story
+          </button>
         </div>
+      </div>
 
-        {/*
-          GLOW LAYER — merged into ONE element (was 4 separate motion.divs).
-          Eliminates 3 extra animated layers. Visually identical.
-          No mixBlendMode on animating elements (screen blend is expensive).
-        */}
-        <motion.div
-          aria-hidden="true"
-          style={{
-            position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-            zIndex: 4,
-            opacity: glowOp,
-            pointerEvents: "none",
-            willChange: "opacity",
-            background: [
-              "radial-gradient(ellipse 35% 55% at 50% 42%, rgba(255,242,185,0.45) 0%, rgba(255,220,110,0.15) 50%, transparent 100%)",
-              "radial-gradient(ellipse 75% 80% at 50% 45%, rgba(255,225,110,0.40) 0%, rgba(220,170,50,0.18) 40%, rgba(180,120,20,0.06) 70%, transparent 100%)",
-            ].join(", "),
-          }}
-        />
-
-        {/* THE DOORS */}
-        <motion.div
-          aria-hidden="true"
-          style={{
-            position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-            zIndex: 10,
-            opacity: doorsOp,
-            pointerEvents: "none",
-            willChange: "opacity",
-          }}
-        >
-          {/* Perspective wrapper */}
-          <div style={{
-            position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-            perspective: "clamp(900px, 130vw, 1600px)",
-            perspectiveOrigin: "50% 50%",
-          }}>
-
-            {/* Left door
-                PERF: filter:drop-shadow() REMOVED from rotating elements.
-                      That was the single biggest perf killer — every frame
-                      the GPU had to compute a drop-shadow on a 3D-transformed
-                      element. Replaced with a static box-shadow on the wrapper
-                      that looks nearly identical but costs nothing during animation.
-            */}
-            <motion.div style={{
-              position: "absolute",
-              left: 0, top: 0, bottom: 0,
-              width: "50%",
-              rotateY: leftRotate,
-              transformOrigin: "0% 50%",
-              willChange: "transform",
-              transformStyle: "preserve-3d",
-              overflow: "hidden",
-            }}>
-              <img
-                src={doorImages.left}
-                alt=""
-                aria-hidden="true"
-                decoding="async"
-                style={{
-                  position: "absolute",
-                  top: -14, bottom: -14,
-                  left: -14, right: 0,
-                  width: "calc(100% + 14px)",
-                  height: "calc(100% + 28px)",
-                  objectFit: "cover", objectPosition: "right center",
-                  display: "block", userSelect: "none",
-                }}
-                draggable={false}
-              />
-              {/* Inner-edge depth shading */}
-              <div style={{
-                position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-                pointerEvents: "none",
-                background: "linear-gradient(to left, rgba(0,0,0,0.20) 0%, transparent 16%)",
-              }} />
-            </motion.div>
-
-            {/* Right door */}
-            <motion.div style={{
-              position: "absolute",
-              right: 0, top: 0, bottom: 0,
-              width: "50%",
-              rotateY: rightRotate,
-              transformOrigin: "100% 50%",
-              willChange: "transform",
-              transformStyle: "preserve-3d",
-              overflow: "hidden",
-            }}>
-              <img
-                src={doorImages.right}
-                alt=""
-                aria-hidden="true"
-                decoding="async"
-                style={{
-                  position: "absolute",
-                  top: -14, bottom: -14,
-                  left: 0, right: -14,
-                  width: "calc(100% + 14px)",
-                  height: "calc(100% + 28px)",
-                  objectFit: "cover", objectPosition: "left center",
-                  display: "block", userSelect: "none",
-                }}
-                draggable={false}
-              />
-              <div style={{
-                position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-                pointerEvents: "none",
-                background: "linear-gradient(to right, rgba(0,0,0,0.20) 0%, transparent 16%)",
-              }} />
-            </motion.div>
-          </div>
-        </motion.div>
-
-        {/* Scroll hint */}
-        <motion.div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            bottom: 80, left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 20,
-            opacity: hintOp,
-            willChange: "opacity",
-            display: "flex", flexDirection: "column", alignItems: "center",
-            gap: 7,
-            pointerEvents: "none",
-          }}
-        >
-          <p style={{
-            fontFamily: FONT_BODY, fontSize: 9,
-            letterSpacing: "0.30em", textTransform: "uppercase",
-            color: "rgba(250,246,239,0.65)",
-            textShadow: "0 1px 8px rgba(0,0,0,0.6)",
-          }}>
-            Scroll to enter
-          </p>
-          <ChevronDown
-            size={15}
-            color="rgba(250,246,239,0.55)"
-            style={{ animation: "floatY 1.9s ease infinite" }}
-          />
-        </motion.div>
+      {/* Scroll hint */}
+      <div aria-hidden="true" style={{
+        position: "absolute", bottom: 36, left: "50%",
+        transform: "translateX(-50%)",
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 7,
+        pointerEvents: "none",
+        animation: "fadeIn 1s ease 1s both",
+      }}>
+        <p style={{
+          fontFamily: FONT_BODY, fontSize: 9,
+          letterSpacing: "0.28em", textTransform: "uppercase",
+          color: "rgba(250,246,239,0.55)",
+          textShadow: "0 1px 8px rgba(0,0,0,0.5)",
+        }}>
+          Scroll to explore
+        </p>
+        <ChevronDown size={15} color="rgba(250,246,239,0.45)" style={{ animation: "floatY 1.9s ease infinite" }} />
       </div>
     </section>
   );
@@ -1309,7 +879,7 @@ function Navbar({ cartCount, onCartOpen, cartBouncing, settings = {} }) {
     let rafId = null;
     let last  = false;
     const check = () => {
-      const s = window.scrollY > window.innerHeight * 0.92;
+      const s = window.scrollY > 80;
       if (s !== last) { last = s; setScrolled(s); }
     };
     const onScroll = () => {
@@ -1513,10 +1083,10 @@ function Navbar({ cartCount, onCartOpen, cartBouncing, settings = {} }) {
    PERF: Memoised — static content, never re-renders
 ═══════════════════════════════════════════════ */
 const TRUST_ITEMS = [
-  { icon: <Leaf size={16} />,  label: "Quality Guaranteed" },
-  { icon: <Clock size={16} />, label: "Fast Dispatch" },
-  { icon: <Award size={16} />, label: "Top-Rated Products" },
-  { icon: <Users size={16} />, label: "Trusted by Thousands" },
+  { icon: <Shield size={16} />, label: "Quality Guaranteed" },
+  { icon: <Truck size={16} />,  label: "Fast Dispatch" },
+  { icon: <Award size={16} />,  label: "Top-Rated Products" },
+  { icon: <Users size={16} />,  label: "Trusted by Thousands" },
 ];
 
 const TrustStrip = memo(function TrustStrip() {
@@ -1712,7 +1282,7 @@ function FeaturedSection({ onAdd, wishlist, toggleWish, products, loading, error
         <SectionHeader
           eyebrow="Handpicked for you"
           title={<>This Week's <em style={{ fontStyle: "italic" }}>Highlights</em></>}
-          sub="Our best-selling items, hand-picked and ready to order."
+          sub="Our best-selling items, carefully selected and ready to order."
         />
 
         {loading && (
@@ -1979,7 +1549,7 @@ const AboutSection = memo(function AboutSection({ settings = {} }) {
           <div className="about-image-col reveal" style={{ position: "relative" }}>
             <img
               src={settings.aboutImageUrl || IMG.about}
-              alt="Store interior"
+              alt="About our store"
               loading="lazy"
               decoding="async"
               style={{
@@ -2085,7 +1655,7 @@ const ReviewsSection = memo(function ReviewsSection() {
         <SectionHeader
           eyebrow="Word of mouth"
           title={<>What our <em style={{ fontStyle: "italic" }}>regulars</em> say</>}
-          sub="We are proud to be a part of so many mornings, celebrations, and memories."
+          sub="We are proud to serve so many happy customers across the country."
         />
         <div style={{
           display: "grid",
@@ -2823,7 +2393,6 @@ export default function PublicSite() {
   const [cartBouncing, setCartBouncing] = useState(false);
   const [cart,         setCart]         = useState([]);
   const [wishlist,     setWishlist]     = useState(new Set());
-  const [doorsReady,   setDoorsReady]   = useState(false);
 
   const { products, loading, error } = useProducts();
   const { settings }                 = useSiteSettings();
@@ -2859,17 +2428,14 @@ export default function PublicSite() {
 
   const cartCount = useMemo(() => cart.reduce((s, i) => s + i.qty, 0), [cart]);
 
-  const openCart     = useCallback(() => setCartOpen(true),  []);
-  const closeCart    = useCallback(() => setCartOpen(false), []);
-  const onDoorsReady = useCallback(() => setDoorsReady(true), []);
-  const clearCart    = useCallback(() => setCart([]), []);
+  const openCart  = useCallback(() => setCartOpen(true),  []);
+  const closeCart = useCallback(() => setCartOpen(false), []);
+  const clearCart = useCallback(() => setCart([]), []);
 
   return (
     <>
       <SiteHead settings={settings} />
       <GlobalStyles />
-
-      <DoorBell doorsReady={doorsReady} />
 
       <Navbar
         cartCount={cartCount}
@@ -2879,7 +2445,7 @@ export default function PublicSite() {
       />
 
       <main>
-        <HeroSection onDoorsReady={onDoorsReady} settings={settings} />
+        <HeroSection settings={settings} />
         <TrustStrip />
         <FeaturedSection onAdd={addToCart} wishlist={wishlist} toggleWish={toggleWish} products={products} loading={loading} error={error} />
         <MenuSection     onAdd={addToCart} wishlist={wishlist} toggleWish={toggleWish} products={products} loading={loading} error={error} />
