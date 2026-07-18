@@ -2618,9 +2618,7 @@ function OrderSuccess({ onClose }) {
         }}>
           Thank you! We've received your order and will be in touch shortly to confirm your delivery.
         </p>
-        <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.mist, marginBottom: 28 }}>
-          Questions? Contact us: <strong style={{ color: C.espresso }}>{""}</strong>
-        </p>
+
         {/* Note: OrderSuccess doesn't receive settings — the number above is a safe fallback */}
         <button className="btn-primary" onClick={onClose}>
           Continue Shopping
