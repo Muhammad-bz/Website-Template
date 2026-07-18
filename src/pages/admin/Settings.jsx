@@ -1,6 +1,4 @@
 // src/pages/admin/Settings.jsx
-// Phase 9 — Business Settings (simplified)
-// Firestore + Cloudinary image uploads. Business info only.
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   Store,

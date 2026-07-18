@@ -1,5 +1,4 @@
 // src/pages/admin/Dashboard.jsx
-// Phase 7 — Live Firestore data. Real-time listeners for products + orders.
 import React, { useState, useEffect, useMemo } from "react";
 import {
   collection,

@@ -74,25 +74,25 @@ const CLOUDINARY_UPLOAD_PRESET = "cremeo";
    CATEGORIES  (matches the public site's menu data)
 ───────────────────────────────────────────────── */
 const CATEGORIES = [
-  "Bento Cake",
-  "Cake 1 Pound",
-  "Cake 1.5 Pound",
-  "Cake 2 Pound",
-  "Dream Cake",
-  "Pastries",
-  "Donut",
-  "Seasonal",
-  "Sundes",
-  "Bowls",
-  "Cream Puff",
-  "Loaf Cakes",
-  "Loaded Brownie",
-  "Cup Cake",
-  "Cake Pops",
-  "Tarts",
-  "Savory Foods",
-  "American Kuisine (Imported)",
-  "Coffee",
+  "Category A",
+  "Category B",
+  "Category C",
+  "Category D",
+  "Category E",
+  "Category F",
+  "Category G",
+  "Category H",
+  "Category I",
+  "Category J",
+  "Category K",
+  "Category L",
+  "Category M",
+  "Category N",
+  "Category O",
+  "Category P",
+  "Category Q",
+  "Category R",
+  "Category S",
 ];
 
 /* ─────────────────────────────────────────────────
@@ -860,7 +860,7 @@ function ProductModal({ mode, initial, onSave, onClose }) {
             <input
               ref={firstRef}
               className={`crm-input ${errors.name ? "error" : ""}`}
-              placeholder="e.g. Red Velvet Cake"
+              placeholder="e.g. Product Name"
               value={form.name}
               onChange={set("name")}
               onFocus={() => setErrors((e) => ({ ...e, name: undefined }))}

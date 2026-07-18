@@ -45,10 +45,10 @@ const FONT_BODY    = "'DM Sans', system-ui, sans-serif";
 ───────────────────────────────────────────────── */
 let _nextId = 5;
 const SEED = [
-  { id: 1, name: "Ice Cream",        description: "Classic scooped and soft-serve ice cream varieties.", displayOrder: 1, active: true,  createdDate: "2024-03-01" },
-  { id: 2, name: "Gelato",           description: "Italian-style dense, richly flavoured frozen desserts.", displayOrder: 2, active: true,  createdDate: "2024-03-05" },
-  { id: 3, name: "Sorbets & Sherbets", description: "Fruit-forward, dairy-free frozen options.",           displayOrder: 3, active: true,  createdDate: "2024-04-12" },
-  { id: 4, name: "Sundaes & Splits", description: "Build-your-own topped creations and signature splits.", displayOrder: 4, active: false, createdDate: "2024-06-20" },
+  { id: 1, name: "Category A", description: "First product category.", displayOrder: 1, active: true,  createdDate: "2024-03-01" },
+  { id: 2, name: "Category B", description: "Second product category.", displayOrder: 2, active: true,  createdDate: "2024-03-05" },
+  { id: 3, name: "Category C", description: "Third product category.",  displayOrder: 3, active: true,  createdDate: "2024-04-12" },
+  { id: 4, name: "Category D", description: "Fourth product category.", displayOrder: 4, active: false, createdDate: "2024-06-20" },
 ];
 
 /* ─────────────────────────────────────────────────
@@ -411,7 +411,7 @@ function CategoryModal({ mode, initial, existingNames, onSave, onClose }) {
               className={`cat-input${errors.name ? " error" : ""}`}
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
-              placeholder="e.g. Gelato"
+              placeholder="e.g. Category Name"
               maxLength={80}
             />
             {errors.name && (
