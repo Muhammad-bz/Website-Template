@@ -9,9 +9,9 @@ const SectionHeader = memo(function SectionHeader({ eyebrow, title, sub, center 
     <div className="reveal" style={{ textAlign: center ? "center" : "left", marginBottom: 44 }}>
       {eyebrow && (
         <p style={{
-          fontFamily: FONT_BODY, fontSize: 10,
-          letterSpacing: "0.28em", textTransform: "uppercase",
-          color: C.gold, marginBottom: 12,
+          fontFamily: FONT_BODY, fontSize: 9,
+          letterSpacing: "0.36em", textTransform: "uppercase",
+          color: C.rose, marginBottom: 16,
         }}>
           {eyebrow}
         </p>
@@ -19,17 +19,19 @@ const SectionHeader = memo(function SectionHeader({ eyebrow, title, sub, center 
       <div className={`divider${center ? "" : " left"}`} />
       <h2 style={{
         fontFamily: FONT_DISPLAY, fontWeight: 300,
-        fontSize: "clamp(30px, 5vw, 52px)",
-        color: C.espresso, lineHeight: 1.1, marginTop: 16,
+        fontSize: "clamp(28px, 4.5vw, 50px)",
+        color: C.charcoal, lineHeight: 1.1, marginTop: 18,
+        letterSpacing: "0.01em",
       }}>
         {title}
       </h2>
       {sub && (
         <p style={{
-          fontFamily: FONT_BODY, fontWeight: 300, fontSize: 15,
-          color: C.mist, maxWidth: 500,
-          margin: center ? "12px auto 0" : "12px 0 0",
-          lineHeight: 1.7,
+          fontFamily: FONT_BODY, fontWeight: 300, fontSize: 14,
+          color: C.mist, maxWidth: 480,
+          margin: center ? "14px auto 0" : "14px 0 0",
+          lineHeight: 1.8,
+          letterSpacing: "0.01em",
         }}>
           {sub}
         </p>

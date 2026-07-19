@@ -22,22 +22,29 @@ export default function GlobalStyles() {
         max-width: 100%;
       }
 
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap');
+
       /* Only GPU-composited props in keyframes */
-      @keyframes fadeUp     { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-      @keyframes fadeIn     { from { opacity: 0; } to { opacity: 1; } }
-      @keyframes shimmer    { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-      @keyframes floatY     { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
-      @keyframes cartBounce { 0%,100% { transform: scale(1); } 40% { transform: scale(1.22); } 70% { transform: scale(0.92); } }
+      @keyframes fadeUp       { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes fadeIn       { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes shimmer      { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+      @keyframes floatY       { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+      @keyframes cartBounce   { 0%,100% { transform: scale(1); } 40% { transform: scale(1.22); } 70% { transform: scale(0.92); } }
       @keyframes slideInRight { from { transform: translate3d(100%,0,0); } to { transform: translate3d(0,0,0); } }
+      @keyframes petalDrop    { from { opacity: 0; transform: translateY(-8px) rotate(-3deg); } to { opacity: 1; transform: translateY(0) rotate(0deg); } }
 
       /* Reveal utility — only transform + opacity (compositor-only) */
       .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
       .reveal.visible { opacity: 1; transform: translateY(0); }
 
-      /* Card lift — only transform + box-shadow, NOT layout props */
-      .card-lift { transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease; }
+      /* Card lift */
+      .card-lift { transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease; }
       @media (hover: hover) {
-        .card-lift:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(46,26,14,0.12); }
+        .card-lift:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(201,129,143,0.14); }
+        .selara-product-card:hover .card-quick-add {
+          opacity: 1 !important;
+          transform: translateY(0) !important;
+        }
       }
 
       /* Nav links */
@@ -45,37 +52,49 @@ export default function GlobalStyles() {
       .nav-link::after {
         content: '';
         position: absolute; bottom: -3px; left: 0;
-        width: 0; height: 1.5px;
-        background: ${C.gold};
-        transition: width 0.25s ease;
+        width: 0; height: 1px;
+        background: ${C.blush};
+        transition: width 0.3s ease;
       }
       .nav-link:hover::after { width: 100%; }
-      .nav-link:hover { color: ${C.caramel} !important; }
+      .nav-link:hover { color: ${C.rose} !important; }
 
-      /* Buttons — specific transitions, not 'all' */
+      /* Buttons — Selara style */
       .btn-primary {
         display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-        padding: 14px 28px;
-        background: ${C.chocolate}; color: ${C.cream};
-        font-family: ${FONT_BODY}; font-size: 12px; font-weight: 600;
-        letter-spacing: 0.1em; text-transform: uppercase;
-        border: none; border-radius: 3px; cursor: pointer;
-        transition: background 0.2s, transform 0.15s;
+        padding: 14px 32px;
+        background: ${C.charcoal}; color: ${C.cream};
+        font-family: ${FONT_BODY}; font-size: 11px; font-weight: 500;
+        letter-spacing: 0.16em; text-transform: uppercase;
+        border: none; border-radius: 0; cursor: pointer;
+        transition: background 0.25s, transform 0.15s;
         text-decoration: none; white-space: nowrap;
       }
-      .btn-primary:hover { background: ${C.espresso}; transform: translateY(-1px); }
+      .btn-primary:hover { background: ${C.rose}; transform: translateY(-1px); }
       .btn-primary:active { transform: translateY(0); }
 
+      .btn-rose {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 14px 32px;
+        background: ${C.rose}; color: #fff;
+        font-family: ${FONT_BODY}; font-size: 11px; font-weight: 500;
+        letter-spacing: 0.16em; text-transform: uppercase;
+        border: none; border-radius: 0; cursor: pointer;
+        transition: background 0.25s, transform 0.15s; white-space: nowrap;
+      }
+      .btn-rose:hover { background: ${C.petal}; transform: translateY(-1px); }
+
+      /* kept for backward compat */
       .btn-gold {
         display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-        padding: 14px 28px;
-        background: ${C.gold}; color: ${C.espresso};
-        font-family: ${FONT_BODY}; font-size: 12px; font-weight: 700;
-        letter-spacing: 0.1em; text-transform: uppercase;
-        border: none; border-radius: 3px; cursor: pointer;
-        transition: background 0.2s, transform 0.15s; white-space: nowrap;
+        padding: 14px 32px;
+        background: transparent; color: ${C.charcoal};
+        font-family: ${FONT_BODY}; font-size: 11px; font-weight: 500;
+        letter-spacing: 0.16em; text-transform: uppercase;
+        border: 1px solid ${C.charcoal}; border-radius: 0; cursor: pointer;
+        transition: background 0.25s, color 0.25s, transform 0.15s; white-space: nowrap;
       }
-      .btn-gold:hover { background: ${C.goldLight}; transform: translateY(-1px); }
+      .btn-gold:hover { background: ${C.charcoal}; color: #fff; transform: translateY(-1px); }
 
       .cart-bounce { animation: cartBounce 0.4s ease; }
 
@@ -86,11 +105,11 @@ export default function GlobalStyles() {
         animation: shimmer 1.8s infinite;
       }
 
-      ::-webkit-scrollbar { width: 5px; }
+      ::-webkit-scrollbar { width: 4px; }
       ::-webkit-scrollbar-track { background: ${C.creamDeep}; }
-      ::-webkit-scrollbar-thumb { background: ${C.caramel}; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb { background: ${C.blush}; border-radius: 2px; }
 
-      .divider { width: 56px; height: 1.5px; background: ${C.gold}; margin: 0 auto 20px; }
+      .divider { width: 40px; height: 1px; background: ${C.blush}; margin: 0 auto 20px; }
       .divider.left { margin-left: 0; }
 
       input, textarea, select { font-family: ${FONT_BODY}; }
@@ -150,7 +169,7 @@ export default function GlobalStyles() {
         z-index: 2001;
         display: flex; flex-direction: column;
         animation: slideInRight 0.3s cubic-bezier(0.16,1,0.3,1);
-        box-shadow: -8px 0 40px rgba(46,26,14,0.15);
+        box-shadow: -4px 0 48px rgba(201,129,143,0.12);
         will-change: transform;
       }
 
@@ -170,8 +189,8 @@ export default function GlobalStyles() {
         transition: border-color 0.18s, box-shadow 0.18s;
       }
       .checkout-input:focus {
-        border-color: ${C.gold};
-        box-shadow: 0 0 0 3px rgba(201,168,76,0.13);
+        border-color: ${C.rose};
+        box-shadow: 0 0 0 3px rgba(201,129,143,0.13);
       }
       .checkout-input.error { border-color: #C0392B; }
       .checkout-error {

@@ -52,12 +52,12 @@ export default function MenuSection({ onAdd, wishlist, toggleWish, products, loa
   const clearAll   = useCallback(() => { setQuery(""); setActiveCategory("All"); }, []);
 
   return (
-    <section id="menu" className="section-pad" style={{ background: C.creamDeep, paddingTop: 64, paddingBottom: 72 }}>
+    <section id="menu" className="section-pad" style={{ background: C.creamDeep, paddingTop: 72, paddingBottom: 80 }}>
       <div style={{ maxWidth: 1260, margin: "0 auto" }}>
         <SectionHeader
-          eyebrow="Our Full Catalogue"
-          title={<>Everything in <em style={{ fontStyle: "italic" }}>Our Store</em></>}
-          sub="Browse by category, search for what you need, or just scroll and explore."
+          eyebrow="The Full Edit"
+          title={<>Shop the <em style={{ fontStyle: "italic" }}>Collection</em></>}
+          sub="Browse by category, search for a style, or simply explore — everything Selara has to offer."
         />
 
         {/* Search + Sort bar */}
@@ -75,7 +75,7 @@ export default function MenuSection({ onAdd, wishlist, toggleWish, products, loa
                 color: C.espresso, outline: "none",
                 transition: "border-color 0.2s",
               }}
-              onFocus={(e) => { e.target.style.borderColor = C.gold; }}
+              onFocus={(e) => { e.target.style.borderColor = C.rose; }}
               onBlur={(e)  => { e.target.style.borderColor = C.line; }}
             />
             <svg
@@ -139,14 +139,14 @@ export default function MenuSection({ onAdd, wishlist, toggleWish, products, loa
                 key={cat}
                 onClick={() => handleCat(cat)}
                 style={{
-                  flexShrink: 0, padding: "8px 16px", borderRadius: 30,
-                  border: active ? `1.5px solid ${C.gold}` : `1.5px solid ${C.line}`,
-                  background: active ? C.espresso : C.cream,
-                  color: active ? C.goldLight : C.mist,
-                  fontFamily: FONT_BODY, fontSize: 12, fontWeight: active ? 600 : 400,
-                  letterSpacing: "0.04em",
+                  flexShrink: 0, padding: "8px 18px", borderRadius: 0,
+                  border: active ? `1px solid ${C.rose}` : `1px solid ${C.line}`,
+                  background: active ? C.rose : "transparent",
+                  color: active ? "#fff" : C.mist,
+                  fontFamily: FONT_BODY, fontSize: 11, fontWeight: active ? 500 : 400,
+                  letterSpacing: "0.08em", textTransform: "uppercase",
                   cursor: "pointer",
-                  transition: "background 0.18s, color 0.18s, border-color 0.18s",
+                  transition: "background 0.2s, color 0.2s, border-color 0.2s",
                   whiteSpace: "nowrap",
                 }}
               >

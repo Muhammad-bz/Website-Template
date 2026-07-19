@@ -11,9 +11,9 @@ const Footer = memo(function Footer({ settings = {} }) {
 
   return (
     <footer style={{
-      background: C.espresso,
-      borderTop: "1px solid rgba(250,246,239,0.06)",
-      padding: "48px 5% 28px",
+      background: C.charcoal,
+      borderTop: "1px solid rgba(242,196,206,0.08)",
+      padding: "56px 5% 28px",
     }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <div className="footer-grid">
@@ -25,8 +25,8 @@ const Footer = memo(function Footer({ settings = {} }) {
                 {settings.storeName || "Your Store"}
               </p>
             )}
-            <p style={{ fontFamily: FONT_BODY, fontSize: 9, letterSpacing: "0.28em", textTransform: "uppercase", color: C.gold, marginBottom: 14 }}>
-              {settings.tagline || "Quality Products · Online Store"}
+            <p style={{ fontFamily: FONT_BODY, fontSize: 9, letterSpacing: "0.32em", textTransform: "uppercase", color: C.blush, marginBottom: 14 }}>
+              {settings.tagline || "Feminine · Modern · Pret"}
             </p>
             <p style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 300, color: "rgba(250,246,239,0.4)", lineHeight: 1.7, maxWidth: 280 }}>
               {settings.aboutText
@@ -36,7 +36,7 @@ const Footer = memo(function Footer({ settings = {} }) {
           </div>
 
           <div>
-            <p style={{ fontFamily: FONT_BODY, fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: C.gold, marginBottom: 16 }}>
+            <p style={{ fontFamily: FONT_BODY, fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: C.blush, marginBottom: 16 }}>
               Explore
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -51,8 +51,8 @@ const Footer = memo(function Footer({ settings = {} }) {
                     color: "rgba(250,246,239,0.45)", transition: "color 0.2s",
                     padding: 0,
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = C.goldLight; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(250,246,239,0.45)"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = C.blush; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(253,248,245,0.40)"; }}
                 >
                   {label}
                 </button>
@@ -61,7 +61,7 @@ const Footer = memo(function Footer({ settings = {} }) {
           </div>
 
           <div>
-            <p style={{ fontFamily: FONT_BODY, fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: C.gold, marginBottom: 16 }}>
+            <p style={{ fontFamily: FONT_BODY, fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: C.blush, marginBottom: 16 }}>
               Hours
             </p>
             <p style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 300, color: "rgba(250,246,239,0.45)", lineHeight: 2, whiteSpace: "pre-line" }}>
@@ -73,16 +73,16 @@ const Footer = memo(function Footer({ settings = {} }) {
         </div>
 
         <div style={{
-          borderTop: "1px solid rgba(250,246,239,0.06)",
+          borderTop: "1px solid rgba(242,196,206,0.08)",
           paddingTop: 24,
           display: "flex", justifyContent: "space-between", alignItems: "center",
           flexWrap: "wrap", gap: 10,
         }}>
-          <p style={{ fontFamily: FONT_BODY, fontSize: 11, color: "rgba(250,246,239,0.22)" }}>
-            &copy; {new Date().getFullYear()} {settings.storeName || "Your Store"}. All rights reserved.
+          <p style={{ fontFamily: FONT_BODY, fontSize: 11, color: "rgba(253,248,245,0.20)" }}>
+            &copy; {new Date().getFullYear()} {settings.storeName || "Selara"}. All rights reserved.
           </p>
-          <p style={{ fontFamily: FONT_BODY, fontSize: 11, color: "rgba(250,246,239,0.18)" }}>
-            {settings.address ? settings.address.split(",").slice(-2).join(",").trim() : "Your City"}
+          <p style={{ fontFamily: FONT_BODY, fontSize: 11, color: "rgba(242,196,206,0.25)", letterSpacing: "0.06em" }}>
+            Feminine · Modern · Pret
           </p>
         </div>
       </div>

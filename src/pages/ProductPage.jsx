@@ -47,11 +47,11 @@ function RelatedCard({ product, onAdd }) {
         cursor: "pointer",
         background: C.cream,
         border: `1px solid ${C.line}`,
-        borderRadius: 4,
+        borderRadius: 0,
         overflow: "hidden",
         transition: "box-shadow 0.25s",
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 8px 32px rgba(62,38,24,0.10)"; }}
+      onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 8px 32px rgba(201,129,143,0.12)"; }}
       onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}
     >
       <div style={{ position: "relative", paddingBottom: "120%", overflow: "hidden" }}>
@@ -61,19 +61,19 @@ function RelatedCard({ product, onAdd }) {
         />
       </div>
       <div style={{ padding: "14px 16px 16px" }}>
-        <p style={{ fontFamily: FONT_DISPLAY, fontSize: 16, fontWeight: 400, color: C.espresso, marginBottom: 4, lineHeight: 1.2 }}>
+        <p style={{ fontFamily: FONT_DISPLAY, fontSize: 16, fontWeight: 400, color: C.charcoal, marginBottom: 4, lineHeight: 1.2 }}>
           {product.name}
         </p>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontFamily: FONT_DISPLAY, fontSize: 15, color: C.chocolate }}>
+          <span style={{ fontFamily: FONT_DISPLAY, fontSize: 15, color: C.slate }}>
             {fmt(product.price)}
           </span>
           <button
             onClick={handleAdd}
             style={{
-              background: added ? C.caramel : C.espresso,
-              color: C.cream, border: "none", borderRadius: 3,
-              padding: "7px 12px", fontSize: 9, fontWeight: 600,
+              background: added ? C.rose : C.charcoal,
+              color: "#fff", border: "none", borderRadius: 0,
+              padding: "7px 12px", fontSize: 9, fontWeight: 500,
               letterSpacing: "0.12em", textTransform: "uppercase",
               cursor: "pointer", transition: "background 0.2s",
               display: "flex", alignItems: "center", gap: 4,
@@ -264,10 +264,10 @@ export default function ProductPage() {
               {product.tag && (
                 <span style={{
                   position: "absolute", top: 16, left: 16,
-                  background: C.espresso, color: C.goldLight,
-                  fontFamily: FONT_BODY, fontSize: 9, fontWeight: 600,
-                  letterSpacing: "0.15em", textTransform: "uppercase",
-                  padding: "5px 10px", borderRadius: 2,
+                  background: C.rose, color: "#fff",
+                  fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500,
+                  letterSpacing: "0.16em", textTransform: "uppercase",
+                  padding: "5px 12px",
                 }}>
                   {product.tag}
                 </span>
@@ -281,9 +281,9 @@ export default function ProductPage() {
             {/* Category eyebrow */}
             {product.category && (
               <p style={{
-                fontFamily: FONT_BODY, fontSize: 10, fontWeight: 600,
-                letterSpacing: "0.2em", textTransform: "uppercase",
-                color: C.gold, marginBottom: 12,
+                fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500,
+                letterSpacing: "0.28em", textTransform: "uppercase",
+                color: C.rose, marginBottom: 12,
               }}>
                 {product.category}
               </p>
@@ -291,16 +291,16 @@ export default function ProductPage() {
 
             {/* Name */}
             <h1 style={{
-              fontFamily: FONT_DISPLAY, fontWeight: 300, fontSize: "clamp(28px, 4vw, 42px)",
-              color: C.espresso, lineHeight: 1.1, marginBottom: 16, letterSpacing: "-0.01em",
+              fontFamily: FONT_DISPLAY, fontWeight: 300, fontSize: "clamp(28px, 4vw, 44px)",
+              color: C.charcoal, lineHeight: 1.1, marginBottom: 16, letterSpacing: "-0.01em",
             }}>
               {product.name}
             </h1>
 
             {/* Price */}
             <p style={{
-              fontFamily: FONT_DISPLAY, fontSize: 26, fontWeight: 500,
-              color: C.chocolate, marginBottom: 28, letterSpacing: "0.01em",
+              fontFamily: FONT_DISPLAY, fontSize: 26, fontWeight: 400,
+              color: C.slate, marginBottom: 28, letterSpacing: "0.01em",
             }}>
               {fmt(product.price)}
             </p>
@@ -324,11 +324,11 @@ export default function ProductPage() {
             {hasSizes && (
               <div style={{ marginBottom: 28 }}>
                 <p style={{
-                  fontFamily: FONT_BODY, fontSize: 10, fontWeight: 600,
-                  letterSpacing: "0.16em", textTransform: "uppercase",
-                  color: C.espresso, marginBottom: 12,
+                  fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500,
+                  letterSpacing: "0.18em", textTransform: "uppercase",
+                  color: C.charcoal, marginBottom: 12,
                 }}>
-                  Size {selectedSize && <span style={{ color: C.gold, fontWeight: 400 }}>— {selectedSize}</span>}
+                  Size {selectedSize && <span style={{ color: C.rose, fontWeight: 400 }}>— {selectedSize}</span>}
                 </p>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {(product.sizes || SIZES).map((sz) => {
@@ -339,14 +339,14 @@ export default function ProductPage() {
                         onClick={() => { setSelectedSize(sz); setSizeError(false); }}
                         style={{
                           width: 48, height: 48,
-                          border: active ? `1.5px solid ${C.espresso}` : `1.5px solid ${C.line}`,
-                          background: active ? C.espresso : C.cream,
-                          color: active ? C.cream : C.mist,
-                          borderRadius: 3,
-                          fontFamily: FONT_BODY, fontSize: 12, fontWeight: 500,
+                          border: active ? `1.5px solid ${C.rose}` : `1.5px solid ${C.line}`,
+                          background: active ? C.rose : "transparent",
+                          color: active ? "#fff" : C.mist,
+                          borderRadius: 0,
+                          fontFamily: FONT_BODY, fontSize: 12, fontWeight: 400,
                           letterSpacing: "0.06em",
                           cursor: "pointer",
-                          transition: "background 0.15s, color 0.15s, border-color 0.15s",
+                          transition: "background 0.18s, color 0.18s, border-color 0.18s",
                         }}
                       >
                         {sz}
@@ -365,13 +365,13 @@ export default function ProductPage() {
             {/* Quantity */}
             <div style={{ marginBottom: 28 }}>
               <p style={{
-                fontFamily: FONT_BODY, fontSize: 10, fontWeight: 600,
-                letterSpacing: "0.16em", textTransform: "uppercase",
-                color: C.espresso, marginBottom: 12,
+                fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500,
+                letterSpacing: "0.18em", textTransform: "uppercase",
+                color: C.charcoal, marginBottom: 12,
               }}>
                 Quantity
               </p>
-              <div style={{ display: "flex", alignItems: "center", gap: 0, border: `1.5px solid ${C.line}`, borderRadius: 3, width: "fit-content" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 0, border: `1px solid ${C.line}`, width: "fit-content" }}>
                 <button
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
                   aria-label="Decrease quantity"
@@ -403,16 +403,16 @@ export default function ProductPage() {
                 onClick={handleAdd}
                 style={{
                   flex: 1,
-                  background: added ? C.caramel : C.espresso,
-                  color: C.cream, border: "none", borderRadius: 3,
+                  background: added ? C.rose : C.charcoal,
+                  color: "#fff", border: "none", borderRadius: 0,
                   padding: "16px 24px",
-                  fontFamily: FONT_BODY, fontSize: 11, fontWeight: 600,
-                  letterSpacing: "0.14em", textTransform: "uppercase",
+                  fontFamily: FONT_BODY, fontSize: 11, fontWeight: 500,
+                  letterSpacing: "0.16em", textTransform: "uppercase",
                   cursor: "pointer", transition: "background 0.25s, transform 0.15s",
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 }}
-                onMouseEnter={(e) => { if (!added) e.currentTarget.style.background = C.chocolate; }}
-                onMouseLeave={(e) => { if (!added) e.currentTarget.style.background = C.espresso; }}
+                onMouseEnter={(e) => { if (!added) e.currentTarget.style.background = C.rose; }}
+                onMouseLeave={(e) => { if (!added) e.currentTarget.style.background = C.charcoal; }}
               >
                 {added ? <><Check size={14} /> Added to cart</> : "Add to cart"}
               </button>
@@ -423,15 +423,15 @@ export default function ProductPage() {
                 aria-label={wished ? "Remove from wishlist" : "Save to wishlist"}
                 style={{
                   width: 52, height: 52, flexShrink: 0,
-                  border: `1.5px solid ${C.line}`,
-                  borderRadius: 3, background: C.cream,
+                  border: `1px solid ${C.line}`,
+                  borderRadius: 0, background: "transparent",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   cursor: "pointer", transition: "border-color 0.2s",
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.gold; }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.rose; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.line; }}
               >
-                <Heart size={18} fill={wished ? C.caramel : "none"} color={wished ? C.caramel : C.mist} />
+                <Heart size={18} fill={wished ? C.rose : "none"} color={wished ? C.rose : C.mist} />
               </button>
             </div>
 
@@ -453,22 +453,25 @@ export default function ProductPage() {
             <div style={{ maxWidth: 1200, margin: "0 auto" }}>
               <div style={{ marginBottom: 36, borderBottom: `1px solid ${C.line}`, paddingBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                 <div>
-                  <p style={{ fontFamily: FONT_BODY, fontSize: 10, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: C.gold, marginBottom: 8 }}>
+                  <p style={{ fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500, letterSpacing: "0.28em", textTransform: "uppercase", color: C.rose, marginBottom: 8 }}>
                     From the same collection
                   </p>
-                  <h2 style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 300, color: C.espresso }}>
+                  <h2 style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 300, color: C.charcoal }}>
                     You might also like
                   </h2>
                 </div>
                 <Link
                   to="/#menu"
                   style={{
-                    fontFamily: FONT_BODY, fontSize: 11, fontWeight: 600,
-                    letterSpacing: "0.12em", textTransform: "uppercase",
-                    color: C.espresso, textDecoration: "none",
-                    borderBottom: `1px solid ${C.espresso}`,
+                    fontFamily: FONT_BODY, fontSize: 10, fontWeight: 500,
+                    letterSpacing: "0.14em", textTransform: "uppercase",
+                    color: C.charcoal, textDecoration: "none",
+                    borderBottom: `1px solid ${C.charcoal}`,
                     paddingBottom: 2, whiteSpace: "nowrap",
+                    transition: "color 0.2s, border-color 0.2s",
                   }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = C.rose; e.currentTarget.style.borderColor = C.rose; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = C.charcoal; e.currentTarget.style.borderColor = C.charcoal; }}
                 >
                   View all
                 </Link>
@@ -499,11 +502,10 @@ export default function ProductPage() {
   );
 }
 
-/* ── Style constants ─── */
 const crumbStyle = {
   fontFamily: "inherit",
   fontSize: 11,
-  color: "#9e8c82",
+  color: C.mist,
   textDecoration: "none",
   letterSpacing: "0.04em",
   transition: "color 0.15s",

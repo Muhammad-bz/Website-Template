@@ -18,22 +18,22 @@ export default function ContactSection({ settings = {} }) {
 
   const inputStyle = useMemo(() => ({
     width: "100%", padding: "13px 15px",
-    background: "rgba(250,246,239,0.07)",
-    border: "1px solid rgba(250,246,239,0.18)",
-    borderRadius: 3, color: C.cream,
+    background: "rgba(253,248,245,0.05)",
+    border: "1px solid rgba(242,196,206,0.18)",
+    borderRadius: 0, color: C.cream,
     fontFamily: FONT_BODY, fontSize: 14, outline: "none",
     transition: "border-color 0.2s",
   }), []);
 
   return (
-    <section id="contact" className="section-pad" style={{ background: C.chocolate }}>
+    <section id="contact" className="section-pad" style={{ background: C.charcoal }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div className="contact-grid">
           <div className="reveal">
-            <p style={{ fontFamily: FONT_BODY, fontSize: 10, letterSpacing: "0.28em", textTransform: "uppercase", color: C.gold, marginBottom: 12 }}>
+            <p style={{ fontFamily: FONT_BODY, fontSize: 9, letterSpacing: "0.36em", textTransform: "uppercase", color: C.blush, marginBottom: 12 }}>
               Visit Us
             </p>
-            <div className="divider left" style={{ background: C.gold }} />
+            <div className="divider left" style={{ background: C.blush }} />
             <h2 style={{
               fontFamily: FONT_DISPLAY, fontWeight: 300,
               fontSize: "clamp(26px, 4vw, 44px)",
@@ -54,14 +54,14 @@ export default function ContactSection({ settings = {} }) {
                 <div key={it.label} style={{ display: "flex", gap: 14 }}>
                   <div style={{
                     width: 36, height: 36, borderRadius: "50%",
-                    border: "1px solid rgba(201,168,76,0.3)",
+                    border: "1px solid rgba(242,196,206,0.3)",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    flexShrink: 0, color: C.goldLight,
+                    flexShrink: 0, color: C.blush,
                   }}>
                     {it.icon}
                   </div>
                   <div>
-                    <p style={{ fontFamily: FONT_BODY, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", color: C.gold, marginBottom: 3 }}>
+                    <p style={{ fontFamily: FONT_BODY, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.18em", color: C.blush, marginBottom: 3 }}>
                       {it.label}
                     </p>
                     <p style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 300, color: "rgba(250,246,239,0.8)", whiteSpace: "pre-line", lineHeight: 1.6 }}>
@@ -85,12 +85,12 @@ export default function ContactSection({ settings = {} }) {
                   aria-label={label}
                   style={{
                     width: 38, height: 38, borderRadius: "50%",
-                    border: "1px solid rgba(201,168,76,0.3)",
+                    border: "1px solid rgba(242,196,206,0.25)",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    color: C.goldLight, transition: "background 0.2s, color 0.2s", textDecoration: "none",
+                    color: C.blush, transition: "background 0.2s, color 0.2s", textDecoration: "none",
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = C.gold; e.currentTarget.style.color = C.espresso; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.goldLight; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = C.rose; e.currentTarget.style.color = "#fff"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.blush; }}
                 >
                   <Icon size={15} />
                 </a>
@@ -121,15 +121,15 @@ export default function ContactSection({ settings = {} }) {
             </p>
             {sent && (
               <div style={{
-                background: "rgba(201,168,76,0.15)",
-                border: "1px solid rgba(201,168,76,0.4)",
-                borderRadius: 4, padding: "12px 16px",
+                background: "rgba(242,196,206,0.12)",
+                border: "1px solid rgba(242,196,206,0.35)",
+                borderRadius: 0, padding: "12px 16px",
                 marginBottom: 22,
                 display: "flex", alignItems: "center", gap: 10,
                 animation: "fadeIn 0.35s ease",
               }}>
-                <Check size={15} color={C.goldLight} />
-                <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.goldLight }}>
+                <Check size={14} color={C.blush} />
+                <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.blush }}>
                   Message received! We&rsquo;ll get back to you soon.
                 </p>
               </div>
@@ -156,8 +156,8 @@ export default function ContactSection({ settings = {} }) {
                 onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
                 style={{ ...inputStyle, resize: "vertical" }}
               />
-              <button type="submit" className="btn-gold" style={{ marginTop: 6, alignSelf: "flex-start" }}>
-                Send Message <ArrowRight size={14} />
+              <button type="submit" className="btn-rose" style={{ marginTop: 6, alignSelf: "flex-start" }}>
+                Send Message <ArrowRight size={13} />
               </button>
             </form>
           </div>

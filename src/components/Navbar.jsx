@@ -21,7 +21,7 @@ const SELARA_NAV_CSS = `
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* Desktop nav links — tracked uppercase with draw-underline on hover */
+  /* Desktop nav links — tracked uppercase with rose underline on hover */
   .selara-nav-link {
     background: none;
     border: none;
@@ -42,11 +42,14 @@ const SELARA_NAV_CSS = `
     left: 0;
     width: 0;
     height: 0.5px;
-    background: currentColor;
-    transition: width 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    background: #F2C4CE;
+    transition: width 0.36s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   .selara-nav-link:hover::after {
     width: 100%;
+  }
+  .selara-nav-link:hover {
+    color: rgba(253,248,245,1) !important;
   }
 
   /* Mobile menu link rows */
@@ -66,7 +69,7 @@ const SELARA_NAV_CSS = `
     transition: color 0.25s ease, letter-spacing 0.25s ease;
   }
   .selara-mobile-link:hover {
-    color: rgba(250,246,239,1);
+    color: #F2C4CE;
     letter-spacing: 0.10em;
   }
 `;
@@ -207,15 +210,14 @@ export default function Navbar({ cartCount, onCartOpen, cartBouncing, settings =
               <span style={{
                 position: "absolute", top: 2, right: 2,
                 minWidth: 15, height: 15,
-                background: "rgba(250,246,239,0.95)",
-                color: "#0A0806",
+                background: "#F2C4CE",
+                color: "#1C1C1C",
                 fontSize: 8,
                 fontFamily: "'Jost', sans-serif",
-                fontWeight: 500,
+                fontWeight: 600,
                 letterSpacing: "0.04em",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 padding: "0 3px",
-                /* Sharp rectangle — no border-radius */
               }}>
                 {cartCount}
               </span>
@@ -339,9 +341,9 @@ export default function Navbar({ cartCount, onCartOpen, cartBouncing, settings =
               fontSize: 8,
               letterSpacing: "0.34em",
               textTransform: "uppercase",
-              color: "rgba(250,246,239,0.18)",
+              color: "rgba(242,196,206,0.30)",
             }}>
-              New Collection · 2026
+              Feminine · Modern · Pret
             </span>
           </div>
         </div>

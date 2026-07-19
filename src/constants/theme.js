@@ -1,31 +1,46 @@
 /* ═══════════════════════════════════════════════
-   DESIGN TOKENS
+   SELARA DESIGN TOKENS
+   Palette: Feminine · Modern · Pret
 ═══════════════════════════════════════════════ */
 export const C = {
-  cream:     "#FAF6EF",
-  creamDeep: "#F0E9DC",
-  parchment: "#E8DDD0",
-  caramel:   "#C8956B",
-  chocolate: "#5C3317",
-  espresso:  "#2E1A0E",
-  gold:      "#C9A84C",
+  /* Backgrounds */
+  cream:     "#FDF8F5",   /* warm paper white */
+  creamDeep: "#F7EEE9",   /* blush tinted surface */
+  parchment: "#EFE0D8",   /* deeper blush section bg */
+
+  /* Brand rose */
+  blush:     "#F2C4CE",   /* signature Selara pink */
+  petal:     "#E8A0B0",   /* mid rose, hover states */
+  rose:      "#C9818F",   /* deep rose, active/primary */
+
+  /* Neutrals */
+  charcoal:  "#1C1C1C",   /* near-black text */
+  slate:     "#4A4A4A",   /* body text */
+  mist:      "#9A8A8A",   /* muted labels */
+  line:      "rgba(201,129,143,0.15)", /* rose-tinted divider */
+
+  /* Accents */
+  gold:      "#C9A84C",   /* kept for cart badge / price */
   goldLight: "#E2C97E",
-  mist:      "#7A6558",
-  line:      "rgba(92,51,23,0.12)",
+
+  /* Legacy aliases so CartDrawer/CheckoutForm don't break */
+  espresso:  "#1C1C1C",
+  chocolate: "#C9818F",
+  caramel:   "#E8A0B0",
 };
 
 export const FONT_DISPLAY = "'Cormorant Garamond', 'Georgia', serif";
-export const FONT_BODY    = "'DM Sans', system-ui, sans-serif";
+export const FONT_BODY    = "'Jost', system-ui, sans-serif";
 
 /* ═══════════════════════════════════════════════
    IMAGES
 ═══════════════════════════════════════════════ */
 export const IMG = {
-  hero:       "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1600&q=85&auto=format&fit=crop",
-  about:      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&q=85&auto=format&fit=crop",
-  aboutSmall: "https://images.unsplash.com/photo-1523381294911-8d3cead13475?w=600&q=85&auto=format&fit=crop",
+  hero:       "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=85&auto=format&fit=crop",
+  about:      "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=900&q=85&auto=format&fit=crop",
+  aboutSmall: "https://images.unsplash.com/photo-1594938298603-c8148c4b7b7b?w=600&q=85&auto=format&fit=crop",
   rev1:       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=85&auto=format&fit=crop&crop=face",
-  rev2:       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=85&auto=format&fit=crop&crop=face",
+  rev2:       "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&q=85&auto=format&fit=crop&crop=face",
   rev3:       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=85&auto=format&fit=crop&crop=face",
 };
 
@@ -33,36 +48,36 @@ export const IMG = {
    CATEGORY IMAGES
 ═══════════════════════════════════════════════ */
 export const CAT_IMGS = {
-  "Category A":    "https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=600&q=80&auto=format&fit=crop",
-  "Category B":  "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&q=80&auto=format&fit=crop",
-  "Category C":"https://images.unsplash.com/photo-1535141192574-5d4897c12636?w=600&q=80&auto=format&fit=crop",
-  "Category D":  "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=600&q=80&auto=format&fit=crop",
-  "Category E":    "https://images.unsplash.com/photo-1542826438-bd32f43d626f?w=600&q=80&auto=format&fit=crop",
-  "Category F":      "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&q=80&auto=format&fit=crop",
-  "Category G":         "https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&q=80&auto=format&fit=crop",
-  "Category H":      "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80&auto=format&fit=crop",
-  "Category I":        "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600&q=80&auto=format&fit=crop",
-  "Category J":         "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&q=80&auto=format&fit=crop",
-  "Category K":    "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=600&q=80&auto=format&fit=crop",
-  "Category L":    "https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=600&q=80&auto=format&fit=crop",
-  "Category M":"https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&q=80&auto=format&fit=crop",
-  "Category N":      "https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=600&q=80&auto=format&fit=crop",
-  "Category O":     "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600&q=80&auto=format&fit=crop",
-  "Category P":         "https://images.unsplash.com/photo-1621188988909-fbef0a88dc04?w=600&q=80&auto=format&fit=crop",
-  "Category Q":  "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&q=80&auto=format&fit=crop",
-  "Category R": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=600&q=80&auto=format&fit=crop",
-  "Category S":        "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80&auto=format&fit=crop",
+  "Category A":  "https://images.unsplash.com/photo-1594938298603-c8148c4b7b7b?w=600&q=80&auto=format&fit=crop",
+  "Category B":  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80&auto=format&fit=crop",
+  "Category C":  "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=600&q=80&auto=format&fit=crop",
+  "Category D":  "https://images.unsplash.com/photo-1605763240000-7e93b172d754?w=600&q=80&auto=format&fit=crop",
+  "Category E":  "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80&auto=format&fit=crop",
+  "Category F":  "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80&auto=format&fit=crop",
+  "Category G":  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80&auto=format&fit=crop",
+  "Category H":  "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=80&auto=format&fit=crop",
+  "Category I":  "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600&q=80&auto=format&fit=crop",
+  "Category J":  "https://images.unsplash.com/photo-1475180098004-ca77a66827be?w=600&q=80&auto=format&fit=crop",
+  "Category K":  "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=600&q=80&auto=format&fit=crop",
+  "Category L":  "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80&auto=format&fit=crop",
+  "Category M":  "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=600&q=80&auto=format&fit=crop",
+  "Category N":  "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&q=80&auto=format&fit=crop",
+  "Category O":  "https://images.unsplash.com/photo-1583744946564-b52ac1c389c8?w=600&q=80&auto=format&fit=crop",
+  "Category P":  "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=600&q=80&auto=format&fit=crop",
+  "Category Q":  "https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&q=80&auto=format&fit=crop",
+  "Category R":  "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80&auto=format&fit=crop",
+  "Category S":  "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600&q=80&auto=format&fit=crop",
 };
 
-export const FEAT1 = "https://images.unsplash.com/photo-1559620192-032c4bc4674e?w=600&q=85&auto=format&fit=crop";
+export const FEAT1 = "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=85&auto=format&fit=crop";
 export const fallbackImg = (cat) => CAT_IMGS[cat] || FEAT1;
 
 /* ═══════════════════════════════════════════════
    SITE DEFAULTS
 ═══════════════════════════════════════════════ */
 export const SITE_DEFAULTS = {
-  storeName:         "Your Store",
-  tagline:           "Quality Products · Online Store",
+  storeName:         "Selara",
+  tagline:           "Feminine · Modern · Pret",
   logoUrl:           "",
   faviconUrl:        "",
   heroBannerUrl:     "",
@@ -86,12 +101,12 @@ export const SITE_DEFAULTS = {
   minimumOrder:      "",
   currency:          "PKR",
   currencySymbol:    "Rs.",
-  heroTitle:         "Quality You Can Count On",
-  heroSubtitle:      "Discover our curated collection of premium products.",
+  heroTitle:         "A Curated Pret Experience",
+  heroSubtitle:      "Feminine silhouettes, modern cuts — crafted for the woman who knows her style.",
   heroButtonText:    "Shop Now",
-  seoTitle:          "Your Store — Shop Online",
-  metaDescription:   "Shop our curated selection of quality products. Fast delivery, easy checkout, and great prices.",
-  metaKeywords:      "online store, shop, products, ecommerce, your store",
+  seoTitle:          "Selara — Feminine · Modern · Pret",
+  metaDescription:   "Selara offers a curated pret experience — feminine, modern clothing crafted with care.",
+  metaKeywords:      "selara, pret, pakistani fashion, women clothing, feminine fashion",
   canonicalUrl:      "",
   robots:            "index",
   ogImageUrl:        "",
@@ -206,9 +221,9 @@ export const FEATURED = [
 export const ALL_CATEGORIES = [...new Set(MENU_DATA.map(p => p.category))];
 
 export const REVIEWS = [
-  { name: "Sana Malik",    img: IMG.rev1, stars: 5, role: "Lifestyle Blogger",  text: "The selection and quality here are unmatched. Every product I have ordered has exceeded my expectations. I keep coming back." },
-  { name: "Ahmed Raza",    img: IMG.rev2, stars: 5, role: "Regular Customer",   text: "I ordered a gift for a friend and the packaging and quality were outstanding. The whole experience from checkout to delivery was flawless." },
-  { name: "Nadia Hussain", img: IMG.rev3, stars: 5, role: "Verified Buyer",     text: "This is my go-to store for quality finds. People always ask where I get them from. Your Store never disappoints." },
+  { name: "Sana Malik",    img: IMG.rev1, stars: 5, role: "Lifestyle Blogger",  text: "Selara's pieces are exactly what I have been looking for — feminine, well-cut, and so easy to style. The fabric quality is genuinely impressive at this price point." },
+  { name: "Zara Fatima",   img: IMG.rev2, stars: 5, role: "Regular Customer",   text: "Ordered two suits and they arrived beautifully packaged. The stitching detail is immaculate. I have already placed my second order. Selara does not disappoint." },
+  { name: "Nadia Hussain", img: IMG.rev3, stars: 5, role: "Verified Buyer",     text: "Everyone at the gathering asked where I got my outfit from. This is my go-to now for every occasion. Modern cuts, beautiful fabrics — Selara is the real deal." },
 ];
 
 export const fmt = (n) => `Rs. ${n.toLocaleString()}`;

@@ -7,29 +7,29 @@ import { C, FONT_BODY } from "../constants/theme";
    PERF: Memoised — static content, never re-renders
 ═══════════════════════════════════════════════ */
 const TRUST_ITEMS = [
-  { icon: <Shield size={16} />, label: "Quality Guaranteed" },
-  { icon: <Truck size={16} />,  label: "Fast Dispatch" },
-  { icon: <Award size={16} />,  label: "Top-Rated Products" },
-  { icon: <Users size={16} />,  label: "Trusted by Thousands" },
+  { icon: <Shield size={15} />, label: "Premium Fabrics" },
+  { icon: <Truck size={15} />,  label: "Nationwide Delivery" },
+  { icon: <Award size={15} />,  label: "Expert Craftsmanship" },
+  { icon: <Users size={15} />,  label: "Loved by Customers" },
 ];
 
 const TrustStrip = memo(function TrustStrip() {
   return (
-    <div style={{ background: C.espresso, padding: "18px 5%" }}>
+    <div style={{ background: C.parchment, padding: "16px 5%", borderTop: `1px solid ${C.line}`, borderBottom: `1px solid ${C.line}` }}>
       <div className="trust-grid" style={{ maxWidth: 1100, margin: "0 auto" }}>
         {TRUST_ITEMS.map((it) => (
           <div
             key={it.label}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
-              gap: 9, padding: "10px 12px", color: C.goldLight,
+              gap: 8, padding: "10px 12px", color: C.rose,
             }}
           >
             {it.icon}
             <span style={{
-              fontFamily: FONT_BODY, fontSize: 11, fontWeight: 500,
-              letterSpacing: "0.08em", textTransform: "uppercase",
-              color: C.cream,
+              fontFamily: FONT_BODY, fontSize: 10, fontWeight: 500,
+              letterSpacing: "0.12em", textTransform: "uppercase",
+              color: C.slate,
             }}>
               {it.label}
             </span>

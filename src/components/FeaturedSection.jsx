@@ -10,12 +10,12 @@ export default function FeaturedSection({ onAdd, wishlist, toggleWish, products,
   const featured = useMemo(() => products.filter((p) => p.featured), [products]);
 
   return (
-    <section id="featured" className="section-pad" style={{ background: C.cream }}>
+    <section id="featured" className="section-pad" style={{ background: C.cream, paddingBottom: 80 }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <SectionHeader
-          eyebrow="Handpicked for you"
-          title={<>This Week's <em style={{ fontStyle: "italic" }}>Highlights</em></>}
-          sub="Our best-selling items, carefully selected and ready to order."
+          eyebrow="Curated for you"
+          title={<>This Season's <em style={{ fontStyle: "italic" }}>Highlights</em></>}
+          sub="Handpicked pieces from our new collection — feminine, modern, and ready to wear."
         />
 
         {loading && (

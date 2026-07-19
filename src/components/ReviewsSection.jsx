@@ -8,12 +8,12 @@ import SectionHeader from "./shared/SectionHeader";
 ═══════════════════════════════════════════════ */
 const ReviewsSection = memo(function ReviewsSection() {
   return (
-    <section className="section-pad" style={{ background: C.creamDeep }}>
+    <section className="section-pad" style={{ background: C.cream }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <SectionHeader
-          eyebrow="Word of mouth"
-          title={<>What our <em style={{ fontStyle: "italic" }}>regulars</em> say</>}
-          sub="We are proud to serve so many happy customers across the country."
+          eyebrow="Loved by women"
+          title={<>What our <em style={{ fontStyle: "italic" }}>customers</em> say</>}
+          sub="Real stories from women who wear Selara — and keep coming back."
         />
         <div style={{
           display: "grid",
@@ -35,13 +35,13 @@ const ReviewsSection = memo(function ReviewsSection() {
               <span aria-hidden="true" style={{
                 position: "absolute", top: 16, right: 20,
                 fontFamily: FONT_DISPLAY, fontSize: 64,
-                color: C.parchment, lineHeight: 1, userSelect: "none",
+                color: C.blush, lineHeight: 1, userSelect: "none", opacity: 0.5,
               }}>
                 &ldquo;
               </span>
               <div style={{ display: "flex", gap: 3, marginBottom: 16 }}>
                 {Array.from({ length: r.stars }).map((_, j) => (
-                  <Star key={j} size={13} fill={C.gold} color={C.gold} />
+                  <Star key={j} size={12} fill={C.rose} color={C.rose} />
                 ))}
               </div>
               <p style={{
@@ -59,8 +59,8 @@ const ReviewsSection = memo(function ReviewsSection() {
                   style={{ width: 42, height: 42, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
                 />
                 <div>
-                  <p style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 13, color: C.espresso }}>{r.name}</p>
-                  <p style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.gold, marginTop: 1 }}>{r.role}</p>
+                  <p style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 13, color: C.charcoal }}>{r.name}</p>
+                  <p style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.rose, marginTop: 1 }}>{r.role}</p>
                 </div>
               </div>
             </div>
