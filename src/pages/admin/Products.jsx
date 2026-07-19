@@ -733,15 +733,20 @@ async function uploadToCloudinary(file, onProgress) {
     });
 
     xhr.addEventListener("load", () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const data = JSON.parse(xhr.responseText);
-          resolve(data.secure_url);
-        } catch {
-          reject(new Error("Invalid response from Cloudinary."));
+      try {
+        const data = JSON.parse(xhr.responseText);
+        // Cloudinary returns 200 even for auth errors, with an `error` key
+        if (data.error) {
+          reject(new Error(data.error.message ?? "Cloudinary upload error."));
+          return;
         }
-      } else {
-        reject(new Error(`Upload failed (HTTP ${xhr.status}).`));
+        if (xhr.status >= 200 && xhr.status < 300 && data.secure_url) {
+          resolve(data.secure_url);
+        } else {
+          reject(new Error(`Upload failed (HTTP ${xhr.status}).`));
+        }
+      } catch {
+        reject(new Error("Invalid response from Cloudinary."));
       }
     });
 
@@ -816,14 +821,18 @@ function ProductModal({ mode, initial, onSave, onClose }) {
     const errs = validate(form);
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setSaving(true);
+    setErrors({});
+    let saved = false;
     try {
       await onSave(form);
-      onClose();
+      saved = true;
     } catch (err) {
       console.error("Save failed:", err);
-      setErrors({ _global: "Failed to save. Please try again." });
-      setSaving(false);
+      setErrors({ _global: err?.message ?? "Failed to save. Please try again." });
+    } finally {
+      setSaving(false); // ← ALWAYS clears, whether save succeeded or failed
     }
+    if (saved) onClose(); // ← close only after state is clean
   };
 
   const isEdit = mode === "edit";
