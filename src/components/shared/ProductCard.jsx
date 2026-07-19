@@ -1,27 +1,36 @@
+// src/components/shared/ProductCard.jsx
 import React, { memo, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Heart, Check, Plus } from "lucide-react";
 import { C, FONT_DISPLAY, FONT_BODY, fmt } from "../../constants/theme";
 
 /* ═══════════════════════════════════════════════
    PRODUCT CARD
-   PERF: memo to avoid re-renders from parent state changes.
-         Image hover uses CSS class swap instead of inline style mutation.
-         loading="lazy" + decoding="async" on all product images.
+   Clicking the image / name navigates to /product/:id.
+   The Add button still adds directly to cart (no nav).
 ═══════════════════════════════════════════════ */
 const ProductCard = memo(function ProductCard({ product, onAdd, wishlist, toggleWish }) {
+  const navigate = useNavigate();
   const [added,  setAdded]  = useState(false);
   const [imgErr, setImgErr] = useState(false);
   const wished = wishlist?.has(product.id);
 
-  const handleAdd = useCallback(() => {
+  const handleAdd = useCallback((e) => {
+    e.stopPropagation();          // don't trigger card navigation
     onAdd({ ...product, qty: 1 });
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
   }, [onAdd, product]);
 
-  const handleToggleWish = useCallback(() => {
+  const handleToggleWish = useCallback((e) => {
+    e.stopPropagation();
     toggleWish?.(product.id);
   }, [toggleWish, product.id]);
+
+  const goToProduct = useCallback(() => {
+    navigate(`/product/${product.id}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [navigate, product.id]);
 
   return (
     <div
@@ -34,7 +43,11 @@ const ProductCard = memo(function ProductCard({ product, onAdd, wishlist, toggle
         contain: "layout style",
       }}
     >
-      <div style={{ position: "relative", paddingBottom: "68%", overflow: "hidden", flexShrink: 0 }}>
+      {/* ── Image — clickable ── */}
+      <div
+        onClick={goToProduct}
+        style={{ position: "relative", paddingBottom: "68%", overflow: "hidden", flexShrink: 0, cursor: "pointer" }}
+      >
         {imgErr ? (
           <div className="img-placeholder" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }} />
         ) : (
@@ -83,19 +96,30 @@ const ProductCard = memo(function ProductCard({ product, onAdd, wishlist, toggle
         )}
       </div>
 
+      {/* ── Info ── */}
       <div style={{ padding: "16px 16px 18px", flex: 1, display: "flex", flexDirection: "column" }}>
-        <h3 style={{
-          fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 19,
-          color: C.espresso, marginBottom: 6, lineHeight: 1.2,
-        }}>
+        {/* Name — clickable */}
+        <h3
+          onClick={goToProduct}
+          style={{
+            fontFamily: FONT_DISPLAY, fontWeight: 400, fontSize: 19,
+            color: C.espresso, marginBottom: 6, lineHeight: 1.2,
+            cursor: "pointer",
+            transition: "color 0.15s",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = C.chocolate; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = C.espresso; }}
+        >
           {product.name}
         </h3>
+
         <p style={{
           fontFamily: FONT_BODY, fontSize: 13, fontWeight: 300,
           color: C.mist, lineHeight: 1.6, flex: 1, marginBottom: 14,
         }}>
           {product.desc}
         </p>
+
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
           <span style={{ fontFamily: FONT_DISPLAY, fontSize: 20, fontWeight: 500, color: C.chocolate, flexShrink: 0 }}>
             {fmt(product.price)}
