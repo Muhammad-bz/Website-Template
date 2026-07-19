@@ -74,9 +74,11 @@ const SELARA_NAV_CSS = `
   }
 `;
 
-export default function Navbar({ cartCount, onCartOpen, cartBouncing, settings = {} }) {
+export default function Navbar({ cartCount, onCartOpen, cartBouncing, settings = {}, forceScrolled = false }) {
   const [scrolled,   setScrolled]   = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const isScrolled = forceScrolled || scrolled;
 
   /* Inject CSS once */
   useEffect(() => {
@@ -132,11 +134,11 @@ export default function Navbar({ cartCount, onCartOpen, cartBouncing, settings =
         style={{
           position: "fixed", top: 0, left: 0, right: 0,
           zIndex: 1000,
-          padding: scrolled ? "14px 6%" : "22px 6%",
-          background: scrolled ? "rgba(10,8,6,0.96)" : "transparent",
-          backdropFilter: scrolled ? "blur(14px)" : "none",
-          WebkitBackdropFilter: scrolled ? "blur(14px)" : "none",
-          borderBottom: scrolled ? "0.5px solid rgba(250,246,239,0.08)" : "none",
+          padding: isScrolled ? "14px 6%" : "22px 6%",
+          background: isScrolled ? "rgba(10,8,6,0.96)" : "transparent",
+          backdropFilter: isScrolled ? "blur(14px)" : "none",
+          WebkitBackdropFilter: isScrolled ? "blur(14px)" : "none",
+          borderBottom: isScrolled ? "0.5px solid rgba(250,246,239,0.08)" : "none",
           transition: "background-color 0.40s ease, padding 0.40s ease, border-color 0.40s ease",
           display: "flex", alignItems: "center", justifyContent: "space-between",
           willChange: "background-color",
