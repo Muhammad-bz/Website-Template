@@ -3,7 +3,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-import PublicSite    from "./pages/pages/PublicPage.jsx";
+import PublicSite    from "./pages/PublicPage.jsx";
 import AdminLogin    from "./components/admin/AdminLogin.jsx";
 import ProtectedRoute from "./components/admin/ProtectedRoute.jsx";
 import AdminLayout   from "./pages/admin/AdminLayout.jsx";
