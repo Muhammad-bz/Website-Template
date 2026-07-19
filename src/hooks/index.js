@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { collection, getDocs, getDoc, query, where, doc } from "firebase/firestore";
+import { collection, getDocs, getDoc, onSnapshot, query, where, doc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { fallbackImg, SITE_DEFAULTS } from "../constants/theme";
 
@@ -48,44 +48,43 @@ export function useProducts() {
   const [error,    setError]    = useState(null);
 
   useEffect(() => {
-    let cancelled = false;
+    setLoading(true);
+    setError(null);
 
-    async function fetchProducts() {
-      try {
-        setLoading(true);
-        setError(null);
-        const q = query(
-          collection(db, "products"),
-          where("available", "==", true)
-        );
-        const snapshot = await getDocs(q);
-        if (cancelled) return;
+    const q = query(
+      collection(db, "products"),
+      where("available", "==", true)
+    );
 
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
         const raw = snapshot.docs.map((doc) => ({
-          id:       doc.id,
-          name:     doc.data().name     ?? "",
-          price:    doc.data().price    ?? 0,
+          id: doc.id,
+          name: doc.data().name ?? "",
+          price: doc.data().price ?? 0,
           category: doc.data().category ?? "",
-          img:      doc.data().img      ?? doc.data().imageUrl ?? fallbackImg(doc.data().category),
-          desc:     doc.data().desc     ?? doc.data().description ?? "",
-          tag:      doc.data().tag      ?? "",
+          img: doc.data().img ?? doc.data().imageUrl ?? fallbackImg(doc.data().category),
+          desc: doc.data().desc ?? doc.data().description ?? "",
+          tag: doc.data().tag ?? "",
           featured: doc.data().featured ?? false,
-          available:doc.data().available,
-          order:    doc.data().order    ?? 0,
+          available: doc.data().available,
+          order: doc.data().order ?? 0,
         }));
 
-        const featured    = raw.filter((p) => p.featured);
+        const featured = raw.filter((p) => p.featured);
         const nonFeatured = raw.filter((p) => !p.featured);
-        setProducts([...featured, ...nonFeatured]);
-      } catch (err) {
-        if (!cancelled) setError(err.message ?? "Failed to load products.");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
 
-    fetchProducts();
-    return () => { cancelled = true; };
+        setProducts([...featured, ...nonFeatured]);
+        setLoading(false);
+      },
+      (err) => {
+        setError(err.message ?? "Failed to load products.");
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
   }, []);
 
   return { products, loading, error };
