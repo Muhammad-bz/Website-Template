@@ -14,6 +14,7 @@ import Footer from "../components/Footer";
 import HeroSection    from "../components/HeroSection";
 import TrustStrip     from "../components/TrustStrip";
 import FeaturedSection from "../components/FeaturedSection";
+import CategoriesSection from "../components/CategoriesSection";
 import MenuSection    from "../components/MenuSection";
 import AboutSection   from "../components/AboutSection";
 import ReviewsSection from "../components/ReviewsSection";
@@ -52,6 +53,7 @@ export default function PublicPage() {
         <HeroSection settings={settings} />
         <TrustStrip />
         <FeaturedSection onAdd={addToCart} wishlist={wishlist} toggleWish={toggleWish} products={products} loading={loading} error={error} />
+        <CategoriesSection products={products} onAdd={addToCart} wishlist={wishlist} toggleWish={toggleWish} />
         <MenuSection     onAdd={addToCart} wishlist={wishlist} toggleWish={toggleWish} products={products} loading={loading} error={error} />
         <AboutSection settings={settings} />
         <ReviewsSection />

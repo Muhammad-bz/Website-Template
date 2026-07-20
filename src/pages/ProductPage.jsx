@@ -13,54 +13,54 @@ import Navbar       from "../components/Navbar";
 import Footer       from "../components/Footer";
 import CartDrawer   from "../components/CartDrawer";
 
-/* ─── helpers ────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────────── */
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
-/* Build image array from product — supports single img or images[] array */
+/* Checks images[], imageUrl (admin Firestore field), img in order */
 function getImages(product) {
   if (!product) return [];
   if (Array.isArray(product.images) && product.images.length > 0) return product.images;
-  if (product.img) return [product.img];
+  const single = product.imageUrl || product.img;
+  if (single) return [single];
   return [];
 }
 
-/* ─── Carousel ───────────────────────────────── */
+/* ─────────────────────────────────────────────
+   IMAGE CAROUSEL
+───────────────────────────────────────────── */
 function ImageCarousel({ images, alt, tag }) {
-  const [active,    setActive]    = useState(0);
-  const [fading,    setFading]    = useState(false);
-  const [lightbox,  setLightbox]  = useState(false);
-  const autoRef   = useRef(null);
-  const touchRef  = useRef(null);
+  const [active,   setActive]   = useState(0);
+  const [fading,   setFading]   = useState(false);
+  const [lightbox, setLightbox] = useState(false);
+  const autoRef  = useRef(null);
+  const touchRef = useRef(null);
 
-  /* reset on image list change */
   useEffect(() => { setActive(0); }, [images]);
 
   const goTo = useCallback((idx) => {
     if (idx === active) return;
     setFading(true);
-    setTimeout(() => {
-      setActive(idx);
-      setFading(false);
-    }, 280);
+    setTimeout(() => { setActive(idx); setFading(false); }, 280);
   }, [active]);
 
   const prev = useCallback(() => goTo((active - 1 + images.length) % images.length), [active, images.length, goTo]);
   const next = useCallback(() => goTo((active + 1) % images.length), [active, images.length, goTo]);
 
-  /* auto-advance every 4s when multiple images */
+  /* Auto-advance every 4 s */
   useEffect(() => {
     if (images.length < 2) return;
     autoRef.current = setInterval(next, 4000);
     return () => clearInterval(autoRef.current);
   }, [next, images.length]);
 
-  /* pause auto on user interaction */
   const resetAuto = useCallback(() => {
     clearInterval(autoRef.current);
     if (images.length > 1) autoRef.current = setInterval(next, 4000);
   }, [next, images.length]);
 
-  /* touch/swipe */
+  /* Swipe */
   const onTouchStart = (e) => { touchRef.current = e.touches[0].clientX; };
   const onTouchEnd   = (e) => {
     if (touchRef.current === null) return;
@@ -71,35 +71,36 @@ function ImageCarousel({ images, alt, tag }) {
     dx < 0 ? next() : prev();
   };
 
-  /* keyboard in lightbox */
+  /* Keyboard in lightbox */
   useEffect(() => {
     if (!lightbox) return;
-    const handler = (e) => {
+    const h = (e) => {
       if (e.key === "ArrowRight") { resetAuto(); next(); }
       if (e.key === "ArrowLeft")  { resetAuto(); prev(); }
       if (e.key === "Escape")     setLightbox(false);
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
   }, [lightbox, next, prev, resetAuto]);
 
-  /* lock body scroll when lightbox open */
+  /* Body scroll lock in lightbox */
   useEffect(() => {
     document.body.style.overflow = lightbox ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [lightbox]);
 
-  if (images.length === 0) return <div style={{ paddingBottom: "130%", background: C.creamDeep }} />;
+  if (images.length === 0) {
+    return <div style={{ paddingBottom: "130%", background: C.creamDeep }} />;
+  }
 
   return (
     <>
-      {/* ── Main carousel ── */}
+      {/* ── Main slide ── */}
       <div
         style={{ position: "relative", overflow: "hidden", background: C.creamDeep, userSelect: "none" }}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        {/* Image */}
         <div style={{ position: "relative", paddingBottom: "130%" }}>
           <img
             key={active}
@@ -108,7 +109,7 @@ function ImageCarousel({ images, alt, tag }) {
             loading={active === 0 ? "eager" : "lazy"}
             decoding="async"
             style={{
-              position: "absolute", top: 0, left: 0,
+              position: "absolute", inset: 0,
               width: "100%", height: "100%",
               objectFit: "cover",
               opacity: fading ? 0 : 1,
@@ -120,74 +121,65 @@ function ImageCarousel({ images, alt, tag }) {
         {/* Tag */}
         {tag && (
           <span style={{
-            position: "absolute", top: 14, left: 14,
+            position: "absolute", top: 14, left: 14, zIndex: 2,
             background: C.rose, color: "#fff",
             fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500,
             letterSpacing: "0.16em", textTransform: "uppercase",
-            padding: "5px 12px", zIndex: 2,
+            padding: "5px 12px",
           }}>
             {tag}
           </span>
         )}
 
-        {/* Fullscreen button */}
+        {/* Fullscreen */}
         <button
           onClick={() => setLightbox(true)}
           aria-label="View fullscreen"
           style={{
-            position: "absolute", top: 14, right: 14,
-            background: "rgba(253,248,245,0.88)", border: "none",
+            position: "absolute", top: 14, right: 14, zIndex: 2,
+            background: "rgba(253,248,245,0.85)", border: "none",
             width: 36, height: 36, cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            zIndex: 2, transition: "background 0.2s",
+            transition: "background 0.2s",
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(253,248,245,1)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(253,248,245,0.88)"; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "#fff"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(253,248,245,0.85)"; }}
         >
           <Maximize2 size={15} color={C.charcoal} />
         </button>
 
-        {/* Arrows — only if multiple images */}
+        {/* Arrows */}
         {images.length > 1 && (
           <>
-            <button
-              onClick={() => { resetAuto(); prev(); }}
-              aria-label="Previous image"
-              style={arrowStyle("left")}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(253,248,245,1)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(253,248,245,0.80)"; }}
-            >
+            <button onClick={() => { resetAuto(); prev(); }} aria-label="Previous"
+              style={arrowBtn("left")}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "#fff"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(253,248,245,0.80)"; }}>
               <ChevronLeft size={18} color={C.charcoal} />
             </button>
-            <button
-              onClick={() => { resetAuto(); next(); }}
-              aria-label="Next image"
-              style={arrowStyle("right")}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(253,248,245,1)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(253,248,245,0.80)"; }}
-            >
+            <button onClick={() => { resetAuto(); next(); }} aria-label="Next"
+              style={arrowBtn("right")}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "#fff"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(253,248,245,0.80)"; }}>
               <ChevronRight size={18} color={C.charcoal} />
             </button>
           </>
         )}
 
-        {/* Dot indicators */}
+        {/* Pill dots */}
         {images.length > 1 && (
           <div style={{
             position: "absolute", bottom: 14, left: "50%",
             transform: "translateX(-50%)",
-            display: "flex", gap: 6, zIndex: 2,
+            display: "flex", gap: 5, zIndex: 2,
           }}>
             {images.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => { resetAuto(); goTo(i); }}
-                aria-label={`Go to image ${i + 1}`}
+              <button key={i} onClick={() => { resetAuto(); goTo(i); }}
+                aria-label={`Image ${i + 1}`}
                 style={{
-                  width: i === active ? 20 : 6,
-                  height: 6,
-                  background: i === active ? C.rose : "rgba(253,248,245,0.65)",
-                  border: "none", cursor: "pointer", padding: 0,
+                  width: i === active ? 20 : 6, height: 6,
+                  background: i === active ? C.rose : "rgba(253,248,245,0.60)",
+                  border: "none", padding: 0, cursor: "pointer",
                   transition: "width 0.3s ease, background 0.3s ease",
                 }}
               />
@@ -196,29 +188,23 @@ function ImageCarousel({ images, alt, tag }) {
         )}
       </div>
 
-      {/* Thumbnail strip — desktop only, shown when >1 image */}
+      {/* Thumbnail strip */}
       {images.length > 1 && (
         <div style={{
-          display: "flex", gap: 8, marginTop: 10, overflowX: "auto",
-          scrollbarWidth: "none", paddingBottom: 2,
+          display: "flex", gap: 6, marginTop: 8,
+          overflowX: "auto", scrollbarWidth: "none", paddingBottom: 2,
         }}>
           {images.map((src, i) => (
-            <button
-              key={i}
-              onClick={() => { resetAuto(); goTo(i); }}
+            <button key={i} onClick={() => { resetAuto(); goTo(i); }}
               style={{
-                flexShrink: 0, width: 64, height: 64,
-                border: i === active ? `2px solid ${C.rose}` : `2px solid transparent`,
+                flexShrink: 0, width: 60, height: 60,
+                border: `2px solid ${i === active ? C.rose : "transparent"}`,
                 padding: 0, cursor: "pointer", overflow: "hidden",
-                transition: "border-color 0.2s",
-                background: C.creamDeep,
+                background: C.creamDeep, transition: "border-color 0.2s",
               }}
             >
-              <img
-                src={src} alt={`${alt} ${i + 1}`}
-                loading="lazy"
-                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-              />
+              <img src={src} alt="" loading="lazy"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </button>
           ))}
         </div>
@@ -240,23 +226,20 @@ function ImageCarousel({ images, alt, tag }) {
             const dx = e.changedTouches[0].clientX - touchRef.current;
             touchRef.current = null;
             if (Math.abs(dx) < 40) return;
-            resetAuto();
-            dx < 0 ? next() : prev();
+            resetAuto(); dx < 0 ? next() : prev();
           }}
         >
           {/* Close */}
-          <button
-            onClick={() => setLightbox(false)}
-            aria-label="Close"
+          <button onClick={() => setLightbox(false)} aria-label="Close"
             style={{
-              position: "absolute", top: 20, right: 20,
-              background: "rgba(253,248,245,0.12)", border: "none",
+              position: "absolute", top: 20, right: 20, zIndex: 2,
+              background: "rgba(253,248,245,0.10)", border: "none",
               width: 44, height: 44, cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
-              zIndex: 2, transition: "background 0.2s",
+              transition: "background 0.2s",
             }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(253,248,245,0.22)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(253,248,245,0.12)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(253,248,245,0.10)"; }}
           >
             <X size={20} color="#fff" />
           </button>
@@ -266,16 +249,15 @@ function ImageCarousel({ images, alt, tag }) {
             <p style={{
               position: "absolute", top: 26, left: "50%", transform: "translateX(-50%)",
               fontFamily: FONT_BODY, fontSize: 11, letterSpacing: "0.14em",
-              color: "rgba(253,248,245,0.45)",
+              color: "rgba(253,248,245,0.40)", pointerEvents: "none",
             }}>
               {active + 1} / {images.length}
             </p>
           )}
 
-          {/* Image */}
+          {/* Full image */}
           <img
-            src={images[active]}
-            alt={`${alt} ${active + 1}`}
+            src={images[active]} alt={`${alt} ${active + 1}`}
             onClick={(e) => e.stopPropagation()}
             style={{
               maxWidth: "90vw", maxHeight: "90vh",
@@ -289,18 +271,16 @@ function ImageCarousel({ images, alt, tag }) {
           {/* Lightbox arrows */}
           {images.length > 1 && (
             <>
-              <button
-                onClick={(e) => { e.stopPropagation(); resetAuto(); prev(); }}
-                aria-label="Previous"
-                style={lightboxArrowStyle("left")}
-              >
+              <button onClick={(e) => { e.stopPropagation(); resetAuto(); prev(); }}
+                aria-label="Previous" style={lbArrowBtn("left")}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(253,248,245,0.18)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(253,248,245,0.08)"; }}>
                 <ChevronLeft size={24} color="#fff" />
               </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); resetAuto(); next(); }}
-                aria-label="Next"
-                style={lightboxArrowStyle("right")}
-              >
+              <button onClick={(e) => { e.stopPropagation(); resetAuto(); next(); }}
+                aria-label="Next" style={lbArrowBtn("right")}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(253,248,245,0.18)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(253,248,245,0.08)"; }}>
                 <ChevronRight size={24} color="#fff" />
               </button>
             </>
@@ -314,13 +294,11 @@ function ImageCarousel({ images, alt, tag }) {
               display: "flex", gap: 8,
             }}>
               {images.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={(e) => { e.stopPropagation(); resetAuto(); goTo(i); }}
+                <button key={i} onClick={(e) => { e.stopPropagation(); resetAuto(); goTo(i); }}
                   style={{
                     width: i === active ? 24 : 7, height: 7,
-                    background: i === active ? C.rose : "rgba(253,248,245,0.35)",
-                    border: "none", cursor: "pointer", padding: 0,
+                    background: i === active ? C.rose : "rgba(253,248,245,0.30)",
+                    border: "none", padding: 0, cursor: "pointer",
                     transition: "width 0.3s ease, background 0.3s ease",
                   }}
                 />
@@ -333,28 +311,27 @@ function ImageCarousel({ images, alt, tag }) {
   );
 }
 
-/* ─── arrow style helpers ─── */
-const arrowStyle = (side) => ({
+const arrowBtn = (side) => ({
   position: "absolute", top: "50%", transform: "translateY(-50%)",
-  [side]: 10,
-  background: "rgba(253,248,245,0.80)",
-  border: "none", width: 36, height: 36,
+  [side]: 10, zIndex: 2,
+  background: "rgba(253,248,245,0.80)", border: "none",
+  width: 36, height: 36,
   display: "flex", alignItems: "center", justifyContent: "center",
-  cursor: "pointer", zIndex: 2,
-  transition: "background 0.2s",
+  cursor: "pointer", transition: "background 0.2s",
 });
 
-const lightboxArrowStyle = (side) => ({
+const lbArrowBtn = (side) => ({
   position: "absolute", top: "50%", transform: "translateY(-50%)",
-  [side]: 16,
-  background: "rgba(253,248,245,0.10)",
-  border: "none", width: 48, height: 48,
+  [side]: 16, zIndex: 2,
+  background: "rgba(253,248,245,0.08)", border: "none",
+  width: 48, height: 48,
   display: "flex", alignItems: "center", justifyContent: "center",
-  cursor: "pointer", zIndex: 2,
-  transition: "background 0.2s",
+  cursor: "pointer", transition: "background 0.2s",
 });
 
-/* ─── Related card ─── */
+/* ─────────────────────────────────────────────
+   RELATED CARD
+───────────────────────────────────────────── */
 function RelatedCard({ product, onAdd }) {
   const navigate = useNavigate();
   const [added, setAdded] = useState(false);
@@ -365,6 +342,8 @@ function RelatedCard({ product, onAdd }) {
     setTimeout(() => setAdded(false), 1600);
   }, [onAdd, product]);
 
+  const thumb = product.imageUrl || product.img;
+
   return (
     <div
       onClick={() => { navigate(`/product/${product.id}`); window.scrollTo({ top: 0, behavior: "smooth" }); }}
@@ -373,8 +352,12 @@ function RelatedCard({ product, onAdd }) {
       onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}
     >
       <div style={{ position: "relative", paddingBottom: "120%", overflow: "hidden" }}>
-        <img src={product.img} alt={product.name} loading="lazy" decoding="async"
-          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        {thumb ? (
+          <img src={thumb} alt={product.name} loading="lazy" decoding="async"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        ) : (
+          <div className="img-placeholder" style={{ position: "absolute", inset: 0 }} />
+        )}
       </div>
       <div style={{ padding: "14px 16px 16px" }}>
         <p style={{ fontFamily: FONT_DISPLAY, fontSize: 16, fontWeight: 400, color: C.charcoal, marginBottom: 4 }}>
@@ -412,8 +395,11 @@ export default function ProductPage() {
     openCart, closeCart, clearCart,
   } = useCart();
 
-  const product = useMemo(() => products.find((p) => String(p.id) === String(id)), [products, id]);
-  const images  = useMemo(() => getImages(product), [product]);
+  const product = useMemo(
+    () => products.find((p) => String(p.id) === String(id)),
+    [products, id]
+  );
+  const images = useMemo(() => getImages(product), [product]);
 
   const related = useMemo(() => {
     if (!product) return [];
@@ -439,37 +425,20 @@ export default function ProductPage() {
     setTimeout(() => setAdded(false), 2000);
   }, [addToCart, product, selectedSize, qty, hasSizes]);
 
-  /* ── Navbar forced-visible CSS injected once ── */
-  useEffect(() => {
-    const id = "selara-product-nav-fix";
-    if (!document.getElementById(id)) {
-      const s = document.createElement("style");
-      s.id = id;
-      /* On product page, navbar is always in "scrolled" state visually */
-      s.textContent = `
-        #selara-product-page nav:first-of-type {
-          background: rgba(10,8,6,0.97) !important;
-          padding-top: 14px !important;
-          padding-bottom: 14px !important;
-          border-bottom: 0.5px solid rgba(242,196,206,0.10) !important;
-          backdrop-filter: blur(14px) !important;
-        }
-      `;
-      document.head.appendChild(s);
-    }
-    return () => {
-      const el = document.getElementById("selara-product-nav-fix");
-      if (el) el.remove();
-    };
-  }, []);
+  /* ── Shared navbar + shell ── */
+  /* forceScrolled makes the navbar render in its "scrolled" (dark, compact) 
+     state from the very first paint — no scroll required.
+     paddingTop: 60px matches the compact navbar height exactly:
+     14px top pad + 32px logo + 14px bottom pad = 60px */
+  const NAV_H = 60;
 
-  /* ── shell for loading/error states ── */
   const shell = (content) => (
     <>
       <SiteHead settings={settings} />
       <GlobalStyles />
-      <Navbar cartCount={cartCount} onCartOpen={openCart} cartBouncing={cartBouncing} settings={settings} forceScrolled />
-      <main style={{ minHeight: "70vh", paddingTop: 72 }}>{content}</main>
+      <Navbar cartCount={cartCount} onCartOpen={openCart}
+        cartBouncing={cartBouncing} settings={settings} forceScrolled />
+      <main style={{ minHeight: "70vh", paddingTop: NAV_H }}>{content}</main>
       <Footer settings={settings} />
       <CartDrawer open={cartOpen} onClose={closeCart} cart={cart}
         updateQty={updateQty} removeItem={removeItem} onOrderSuccess={clearCart} settings={settings} />
@@ -477,12 +446,12 @@ export default function ProductPage() {
   );
 
   if (loading) return shell(
-    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "60px 24px" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px,1fr))", gap: 48 }}>
         <div className="img-placeholder" style={{ paddingBottom: "130%", position: "relative" }} />
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {[240, 120, 80, 160, 48].map((w, i) => (
-            <div key={i} className="img-placeholder" style={{ height: 20, width: w }} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, paddingTop: 8 }}>
+          {[220, 100, 80, 140, 48].map((w, i) => (
+            <div key={i} className="img-placeholder" style={{ height: 18, width: w }} />
           ))}
         </div>
       </div>
@@ -491,71 +460,82 @@ export default function ProductPage() {
 
   if (error) return shell(
     <div style={{ textAlign: "center", padding: "80px 24px" }}>
-      <p style={{ fontFamily: FONT_DISPLAY, fontSize: 24, fontWeight: 300, color: C.mist }}>Unable to load this product.</p>
+      <p style={{ fontFamily: FONT_DISPLAY, fontSize: 24, fontWeight: 300, color: C.mist }}>
+        Unable to load this product.
+      </p>
     </div>
   );
 
   if (!product) return shell(
     <div style={{ textAlign: "center", padding: "80px 24px" }}>
-      <p style={{ fontFamily: FONT_DISPLAY, fontSize: 28, fontWeight: 300, color: C.charcoal, marginBottom: 8 }}>Product not found</p>
-      <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.mist, marginBottom: 32 }}>This item may no longer be available.</p>
-      <Link to="/#menu" style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 500, letterSpacing: "0.14em",
-        textTransform: "uppercase", color: C.charcoal, textDecoration: "none", borderBottom: `1px solid ${C.charcoal}`, paddingBottom: 2 }}>
+      <p style={{ fontFamily: FONT_DISPLAY, fontSize: 28, fontWeight: 300, color: C.charcoal, marginBottom: 8 }}>
+        Product not found
+      </p>
+      <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.mist, marginBottom: 32 }}>
+        This item may no longer be available.
+      </p>
+      <Link to="/#menu" style={{
+        fontFamily: FONT_BODY, fontSize: 11, fontWeight: 500, letterSpacing: "0.14em",
+        textTransform: "uppercase", color: C.charcoal, textDecoration: "none",
+        borderBottom: `1px solid ${C.charcoal}`, paddingBottom: 2,
+      }}>
         View all products
       </Link>
     </div>
   );
 
   return (
-    <div id="selara-product-page">
+    <>
       <SiteHead settings={settings} />
       <GlobalStyles />
 
-      {/* Navbar — forced always visible via forceScrolled prop */}
+      {/* Always dark navbar from first paint */}
       <Navbar
         cartCount={cartCount} onCartOpen={openCart}
         cartBouncing={cartBouncing} settings={settings}
         forceScrolled
       />
 
-      <main style={{ paddingTop: 72 }}>
+      <main style={{ paddingTop: NAV_H }}>
 
-        {/* Breadcrumb */}
-        <nav style={{ maxWidth: 1200, margin: "0 auto", padding: "18px 24px 0", display: "flex", alignItems: "center", gap: 6 }}>
-          <Link to="/" style={crumbStyle}>Home</Link>
-          <ChevronRight size={11} color={C.mist} />
-          <Link to="/#menu" style={crumbStyle}>{product.category || "Shop"}</Link>
-          <ChevronRight size={11} color={C.mist} />
-          <span style={{ ...crumbStyle, color: C.charcoal, cursor: "default" }}>{product.name}</span>
-        </nav>
-
-        {/* Back button */}
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "10px 24px 0" }}>
-          <button onClick={() => navigate(-1)} style={{
-            background: "none", border: "none", cursor: "pointer",
-            display: "flex", alignItems: "center", gap: 6,
-            fontFamily: FONT_BODY, fontSize: 11, fontWeight: 500,
-            letterSpacing: "0.10em", color: C.mist, padding: 0, textTransform: "uppercase",
-            transition: "color 0.15s",
-          }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = C.charcoal; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = C.mist; }}
-          >
-            <ArrowLeft size={13} /> Back
-          </button>
+        {/* ── Breadcrumb + back ── */}
+        <div style={{ background: C.cream, borderBottom: `1px solid ${C.line}` }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+            {/* Back */}
+            <button onClick={() => navigate(-1)} style={{
+              background: "none", border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", gap: 5,
+              fontFamily: FONT_BODY, fontSize: 10, fontWeight: 500,
+              letterSpacing: "0.12em", color: C.mist, padding: 0,
+              textTransform: "uppercase", transition: "color 0.15s",
+            }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = C.charcoal; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = C.mist; }}
+            >
+              <ArrowLeft size={12} /> Back
+            </button>
+            {/* Breadcrumb */}
+            <nav style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <Link to="/" style={crumbStyle}>Home</Link>
+              <ChevronRight size={10} color={C.mist} />
+              <Link to="/#menu" style={crumbStyle}>{product.category || "Shop"}</Link>
+              <ChevronRight size={10} color={C.mist} />
+              <span style={{ ...crumbStyle, color: C.charcoal, cursor: "default" }}>{product.name}</span>
+            </nav>
+          </div>
         </div>
 
-        {/* Main layout */}
+        {/* ── Main product layout ── */}
         <div style={{
           maxWidth: 1200, margin: "0 auto",
-          padding: "28px 24px 72px",
+          padding: "clamp(24px, 4vw, 56px) 24px 80px",
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-          gap: "clamp(28px, 5vw, 72px)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))",
+          gap: "clamp(24px, 5vw, 72px)",
           alignItems: "start",
         }}>
 
-          {/* Left: Carousel — NOT sticky, no position:sticky */}
+          {/* Left: Carousel */}
           <div>
             <ImageCarousel images={images} alt={product.name} tag={product.tag} />
           </div>
@@ -564,50 +544,63 @@ export default function ProductPage() {
           <div style={{ paddingTop: 4 }}>
 
             {product.category && (
-              <p style={{ fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500, letterSpacing: "0.28em",
-                textTransform: "uppercase", color: C.rose, marginBottom: 12 }}>
+              <p style={{
+                fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500,
+                letterSpacing: "0.28em", textTransform: "uppercase",
+                color: C.rose, marginBottom: 10,
+              }}>
                 {product.category}
               </p>
             )}
 
-            <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 300, fontSize: "clamp(28px, 4vw, 44px)",
-              color: C.charcoal, lineHeight: 1.1, marginBottom: 16, letterSpacing: "-0.01em" }}>
+            <h1 style={{
+              fontFamily: FONT_DISPLAY, fontWeight: 300,
+              fontSize: "clamp(26px, 4vw, 44px)",
+              color: C.charcoal, lineHeight: 1.1, marginBottom: 14,
+            }}>
               {product.name}
             </h1>
 
-            <p style={{ fontFamily: FONT_DISPLAY, fontSize: 26, fontWeight: 400,
-              color: C.slate, marginBottom: 28, letterSpacing: "0.01em" }}>
+            <p style={{
+              fontFamily: FONT_DISPLAY, fontSize: "clamp(20px, 2.5vw, 26px)", fontWeight: 400,
+              color: C.slate, marginBottom: 24,
+            }}>
               {fmt(product.price)}
             </p>
 
-            <div style={{ height: 1, background: C.line, marginBottom: 28 }} />
+            <div style={{ height: 1, background: C.line, marginBottom: 24 }} />
 
             {product.desc && (
-              <div style={{ marginBottom: 32 }}>
-                <p style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 300, color: C.mist, lineHeight: 1.75 }}>
-                  {product.desc}
-                </p>
-              </div>
+              <p style={{
+                fontFamily: FONT_BODY, fontSize: 14, fontWeight: 300,
+                color: C.mist, lineHeight: 1.8, marginBottom: 28,
+              }}>
+                {product.desc}
+              </p>
             )}
 
             {/* Sizes */}
             {hasSizes && (
               <div style={{ marginBottom: 28 }}>
-                <p style={{ fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500, letterSpacing: "0.18em",
-                  textTransform: "uppercase", color: C.charcoal, marginBottom: 12 }}>
-                  Size {selectedSize && <span style={{ color: C.rose, fontWeight: 400 }}>— {selectedSize}</span>}
+                <p style={{
+                  fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500,
+                  letterSpacing: "0.18em", textTransform: "uppercase",
+                  color: C.charcoal, marginBottom: 12,
+                }}>
+                  Size{selectedSize && <span style={{ color: C.rose, fontWeight: 400 }}> — {selectedSize}</span>}
                 </p>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {(product.sizes || SIZES).map((sz) => {
-                    const active = selectedSize === sz;
+                    const isActive = selectedSize === sz;
                     return (
-                      <button key={sz} onClick={() => { setSelectedSize(sz); setSizeError(false); }}
+                      <button key={sz}
+                        onClick={() => { setSelectedSize(sz); setSizeError(false); }}
                         style={{
                           width: 48, height: 48,
-                          border: active ? `1.5px solid ${C.rose}` : `1.5px solid ${C.line}`,
-                          background: active ? C.rose : "transparent",
-                          color: active ? "#fff" : C.mist,
-                          borderRadius: 0, fontFamily: FONT_BODY, fontSize: 12, fontWeight: 400,
+                          border: `1px solid ${isActive ? C.rose : C.line}`,
+                          background: isActive ? C.rose : "transparent",
+                          color: isActive ? "#fff" : C.mist,
+                          fontFamily: FONT_BODY, fontSize: 12, fontWeight: 400,
                           letterSpacing: "0.06em", cursor: "pointer",
                           transition: "background 0.18s, color 0.18s, border-color 0.18s",
                         }}
@@ -617,22 +610,31 @@ export default function ProductPage() {
                     );
                   })}
                 </div>
-                {sizeError && <p style={{ fontFamily: FONT_BODY, fontSize: 12, color: "#c0392b", marginTop: 8 }}>Please select a size.</p>}
+                {sizeError && (
+                  <p style={{ fontFamily: FONT_BODY, fontSize: 12, color: "#c0392b", marginTop: 8 }}>
+                    Please select a size.
+                  </p>
+                )}
               </div>
             )}
 
             {/* Quantity */}
             <div style={{ marginBottom: 28 }}>
-              <p style={{ fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500, letterSpacing: "0.18em",
-                textTransform: "uppercase", color: C.charcoal, marginBottom: 12 }}>
+              <p style={{
+                fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500,
+                letterSpacing: "0.18em", textTransform: "uppercase",
+                color: C.charcoal, marginBottom: 12,
+              }}>
                 Quantity
               </p>
               <div style={{ display: "flex", alignItems: "center", border: `1px solid ${C.line}`, width: "fit-content" }}>
                 <button onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Decrease" style={qtyBtnStyle}>
                   <Minus size={13} />
                 </button>
-                <span style={{ fontFamily: FONT_DISPLAY, fontSize: 16, fontWeight: 400,
-                  color: C.charcoal, minWidth: 40, textAlign: "center", padding: "0 4px" }}>
+                <span style={{
+                  fontFamily: FONT_DISPLAY, fontSize: 16, fontWeight: 400,
+                  color: C.charcoal, minWidth: 40, textAlign: "center",
+                }}>
                   {qty}
                 </span>
                 <button onClick={() => setQty((q) => q + 1)} aria-label="Increase" style={qtyBtnStyle}>
@@ -641,12 +643,13 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* CTA row */}
-            <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 24 }}>
+            {/* CTAs */}
+            <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 24 }}>
               <button onClick={handleAdd} style={{
                 flex: 1, background: added ? C.rose : C.charcoal,
-                color: "#fff", border: "none", borderRadius: 0,
-                padding: "16px 24px", fontFamily: FONT_BODY, fontSize: 11, fontWeight: 500,
+                color: "#fff", border: "none",
+                padding: "15px 24px",
+                fontFamily: FONT_BODY, fontSize: 11, fontWeight: 500,
                 letterSpacing: "0.16em", textTransform: "uppercase",
                 cursor: "pointer", transition: "background 0.25s",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
@@ -661,37 +664,43 @@ export default function ProductPage() {
                 aria-label={wished ? "Remove from wishlist" : "Save to wishlist"}
                 style={{
                   width: 52, height: 52, flexShrink: 0,
-                  border: `1px solid ${C.line}`, borderRadius: 0, background: "transparent",
+                  border: `1px solid ${wished ? C.rose : C.line}`,
+                  background: "transparent",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   cursor: "pointer", transition: "border-color 0.2s",
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.rose; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.line; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = wished ? C.rose : C.line; }}
               >
                 <Heart size={18} fill={wished ? C.rose : "none"} color={wished ? C.rose : C.mist} />
               </button>
             </div>
 
-            <div style={{ height: 1, background: C.line, marginBottom: 20 }} />
+            <div style={{ height: 1, background: C.line, marginBottom: 18 }} />
             <p style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.mist, letterSpacing: "0.04em", lineHeight: 1.7 }}>
               Free delivery on orders over PKR 3,000 · Easy 7-day returns
             </p>
-
           </div>
         </div>
 
-        {/* Related products */}
+        {/* ── Related products ── */}
         {related.length > 0 && (
-          <section style={{ background: C.creamDeep, padding: "64px 24px 72px" }}>
+          <section style={{ background: C.creamDeep, padding: "60px 24px 72px" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-              <div style={{ marginBottom: 36, borderBottom: `1px solid ${C.line}`, paddingBottom: 20,
-                display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+              <div style={{
+                marginBottom: 32, paddingBottom: 18,
+                borderBottom: `1px solid ${C.line}`,
+                display: "flex", justifyContent: "space-between", alignItems: "flex-end",
+              }}>
                 <div>
-                  <p style={{ fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500, letterSpacing: "0.28em",
-                    textTransform: "uppercase", color: C.rose, marginBottom: 8 }}>
+                  <p style={{
+                    fontFamily: FONT_BODY, fontSize: 9, fontWeight: 500,
+                    letterSpacing: "0.28em", textTransform: "uppercase",
+                    color: C.rose, marginBottom: 6,
+                  }}>
                     From the same collection
                   </p>
-                  <h2 style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 300, color: C.charcoal }}>
+                  <h2 style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(20px, 3vw, 30px)", fontWeight: 300, color: C.charcoal }}>
                     You might also like
                   </h2>
                 </div>
@@ -699,8 +708,8 @@ export default function ProductPage() {
                   fontFamily: FONT_BODY, fontSize: 10, fontWeight: 500,
                   letterSpacing: "0.14em", textTransform: "uppercase",
                   color: C.charcoal, textDecoration: "none",
-                  borderBottom: `1px solid ${C.charcoal}`, paddingBottom: 2, whiteSpace: "nowrap",
-                  transition: "color 0.2s, border-color 0.2s",
+                  borderBottom: `1px solid ${C.charcoal}`, paddingBottom: 2,
+                  whiteSpace: "nowrap", transition: "color 0.2s, border-color 0.2s",
                 }}
                   onMouseEnter={(e) => { e.currentTarget.style.color = C.rose; e.currentTarget.style.borderColor = C.rose; }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = C.charcoal; e.currentTarget.style.borderColor = C.charcoal; }}
@@ -708,7 +717,11 @@ export default function ProductPage() {
                   View all
                 </Link>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 24 }}>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 200px), 1fr))",
+                gap: 20,
+              }}>
                 {related.map((p) => <RelatedCard key={p.id} product={p} onAdd={addToCart} />)}
               </div>
             </div>
@@ -720,10 +733,11 @@ export default function ProductPage() {
       <Footer settings={settings} />
       <CartDrawer open={cartOpen} onClose={closeCart} cart={cart}
         updateQty={updateQty} removeItem={removeItem} onOrderSuccess={clearCart} settings={settings} />
-    </div>
+    </>
   );
 }
 
+/* ── style constants ── */
 const crumbStyle = {
   fontFamily: "inherit", fontSize: 11, color: C.mist,
   textDecoration: "none", letterSpacing: "0.04em", transition: "color 0.15s",

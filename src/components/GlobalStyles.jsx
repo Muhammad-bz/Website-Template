@@ -221,8 +221,25 @@ export default function GlobalStyles() {
         margin: 0 auto 20px;
       }
 
-      /* Reduce motion */
-      @media (prefers-reduced-motion: reduce) {
+      /* Categories section — editorial grid */
+      @media (min-width: 769px) {
+        .cat-editorial-grid {
+          grid-template-columns: repeat(3, 1fr) !important;
+        }
+        .cat-editorial-grid > *:first-child {
+          grid-row: span 2;
+        }
+      }
+      @media (max-width: 768px) {
+        .cat-editorial-grid {
+          grid-template-columns: repeat(2, 1fr) !important;
+        }
+      }
+      @media (max-width: 420px) {
+        .cat-editorial-grid {
+          grid-template-columns: 1fr !important;
+        }
+      }
         .reveal { transition: none; }
         * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
       }
