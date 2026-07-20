@@ -1,22 +1,54 @@
 // src/components/shared/ProductCard.jsx
-import React, { memo, useState, useCallback } from "react";
+import React, { memo, useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, Check, Plus } from "lucide-react";
 import { C, FONT_DISPLAY, FONT_BODY, fmt } from "../../constants/theme";
+
+/* Resolve all images for a product (supports images[], mainImage, imageUrl, img) */
+function resolveImages(product) {
+  if (Array.isArray(product.images) && product.images.length > 0) return product.images;
+  const single = product.mainImage || product.imageUrl || product.img;
+  return single ? [single] : [];
+}
 
 /* ═══════════════════════════════════════════════
    PRODUCT CARD
    Clicking the image / name navigates to /product/:id.
    The Add button still adds directly to cart (no nav).
+   Multiple images auto-advance with fade transition.
 ═══════════════════════════════════════════════ */
 const ProductCard = memo(function ProductCard({ product, onAdd, wishlist, toggleWish }) {
   const navigate = useNavigate();
-  const [added,  setAdded]  = useState(false);
-  const [imgErr, setImgErr] = useState(false);
+  const [added,   setAdded]   = useState(false);
+  const [imgErr,  setImgErr]  = useState(false);
   const wished = wishlist?.has(product.id);
 
+  // Multi-image carousel state
+  const images   = resolveImages(product);
+  const hasMany  = images.length > 1;
+  const [active,  setActive]  = useState(0);
+  const [fading,  setFading]  = useState(false);
+  const autoRef  = useRef(null);
+
+  const goTo = useCallback((idx) => {
+    if (idx === active) return;
+    setFading(true);
+    setTimeout(() => { setActive(idx); setFading(false); }, 260);
+  }, [active]);
+
+  const next = useCallback(() => {
+    goTo((active + 1) % images.length);
+  }, [active, images.length, goTo]);
+
+  // Auto-advance every 3.5s when there are multiple images
+  useEffect(() => {
+    if (!hasMany) return;
+    autoRef.current = setInterval(next, 3500);
+    return () => clearInterval(autoRef.current);
+  }, [next, hasMany]);
+
   const handleAdd = useCallback((e) => {
-    e.stopPropagation();          // don't trigger card navigation
+    e.stopPropagation();
     onAdd({ ...product, qty: 1 });
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
@@ -32,6 +64,8 @@ const ProductCard = memo(function ProductCard({ product, onAdd, wishlist, toggle
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [navigate, product.id]);
 
+  const currentSrc = images[active] || "";
+
   return (
     <div
       className="card-lift reveal selara-product-card"
@@ -43,16 +77,17 @@ const ProductCard = memo(function ProductCard({ product, onAdd, wishlist, toggle
         contain: "layout style",
       }}
     >
-      {/* ── Image — clickable ── */}
+      {/* ── Image / Carousel — clickable ── */}
       <div
         onClick={goToProduct}
         style={{ position: "relative", paddingBottom: "125%", overflow: "hidden", flexShrink: 0, cursor: "pointer" }}
       >
-        {imgErr ? (
+        {imgErr || !currentSrc ? (
           <div className="img-placeholder" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }} />
         ) : (
           <img
-            src={product.img}
+            key={active}
+            src={currentSrc}
             alt={product.name}
             loading="lazy"
             decoding="async"
@@ -61,8 +96,9 @@ const ProductCard = memo(function ProductCard({ product, onAdd, wishlist, toggle
               position: "absolute", top: 0, left: 0,
               width: "100%", height: "100%",
               objectFit: "cover",
-              transition: "transform 0.55s cubic-bezier(0.16,1,0.3,1)",
-              willChange: "transform",
+              opacity: fading ? 0 : 1,
+              transition: "opacity 0.26s ease, transform 0.55s cubic-bezier(0.16,1,0.3,1)",
+              willChange: "opacity, transform",
             }}
             onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.06)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
@@ -95,6 +131,31 @@ const ProductCard = memo(function ProductCard({ product, onAdd, wishlist, toggle
           >
             <Heart size={14} fill={wished ? C.rose : "none"} color={wished ? C.rose : C.mist} />
           </button>
+        )}
+
+        {/* Dot indicators for multi-image */}
+        {hasMany && (
+          <div style={{
+            position: "absolute", bottom: 8, left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex", gap: 4, zIndex: 2,
+          }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {images.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => { e.stopPropagation(); clearInterval(autoRef.current); goTo(i); }}
+                aria-label={`Image ${i + 1}`}
+                style={{
+                  width: i === active ? 16 : 5, height: 5,
+                  background: i === active ? C.rose : "rgba(253,248,245,0.55)",
+                  border: "none", padding: 0, cursor: "pointer",
+                  transition: "width 0.28s ease, background 0.28s ease",
+                }}
+              />
+            ))}
+          </div>
         )}
 
         {/* Quick-add overlay on hover */}

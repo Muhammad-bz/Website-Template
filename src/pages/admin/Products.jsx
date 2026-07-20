@@ -111,6 +111,8 @@ const EMPTY_FORM = {
   featured:    false,
   available:   true,
   imageUrl:    "",
+  images:      [],
+  mainImage:   "",
 };
 
 /* ═══════════════════════════════════════════════
@@ -169,6 +171,8 @@ function useProducts() {
       featured:    Boolean(data.featured),
       available:   Boolean(data.available),
       imageUrl:    data.imageUrl.trim(),
+      images:      data.images ?? [],
+      mainImage:   data.mainImage ?? "",
       createdAt:   serverTimestamp(),
     });
   }, []);
@@ -182,6 +186,8 @@ function useProducts() {
       featured:    Boolean(data.featured),
       available:   Boolean(data.available),
       imageUrl:    data.imageUrl.trim(),
+      images:      data.images ?? [],
+      mainImage:   data.mainImage ?? "",
     });
   }, []);
 
@@ -609,6 +615,57 @@ function ProductsStyles() {
       .crm-upload-status.error { color: ${C.red}; }
       .crm-upload-status.success { color: ${C.green}; }
 
+      /* Multi-image gallery */
+      .crm-img-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .crm-img-thumb-wrap {
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: border-color 0.18s;
+        aspect-ratio: 1;
+      }
+      .crm-img-thumb-wrap.main-img {
+        border-color: ${C.gold};
+      }
+      .crm-img-thumb-wrap img {
+        width: 100%; height: 100%;
+        object-fit: cover; display: block;
+      }
+      .crm-img-thumb-remove {
+        position: absolute; top: 3px; right: 3px;
+        background: rgba(20,8,2,0.72); border: none;
+        border-radius: 50%; width: 20px; height: 20px;
+        cursor: pointer; color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.15s;
+        z-index: 2;
+      }
+      .crm-img-thumb-wrap:hover .crm-img-thumb-remove { opacity: 1; }
+      .crm-img-main-badge {
+        position: absolute; bottom: 3px; left: 3px;
+        background: ${C.gold}; color: ${C.espresso};
+        font-family: ${FONT_BODY}; font-size: 8px; font-weight: 700;
+        letter-spacing: 0.07em; text-transform: uppercase;
+        padding: 2px 5px; border-radius: 3px;
+        pointer-events: none;
+      }
+      .crm-img-set-main {
+        position: absolute; bottom: 3px; right: 3px;
+        background: rgba(20,8,2,0.65); border: none;
+        border-radius: 3px; padding: 2px 5px;
+        font-family: ${FONT_BODY}; font-size: 8px; color: #fff;
+        font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+        cursor: pointer; opacity: 0; transition: opacity 0.15s;
+      }
+      .crm-img-thumb-wrap:hover .crm-img-set-main { opacity: 1; }
+
       /* Delete dialog */
       .crm-dialog {
         background: ${C.cream};
@@ -644,11 +701,14 @@ function ProductsStyles() {
 ───────────────────────────────────────────────── */
 const fmt = (n) => `Rs. ${Number(n).toLocaleString()}`;
 
-function Thumb({ url, size = 40, radius = 6 }) {
+function Thumb({ product, url, size = 40, radius = 6 }) {
+  // Resolve best image: mainImage → images[0] → imageUrl → url prop
+  const resolved = product
+    ? (product.mainImage || (Array.isArray(product.images) && product.images[0]) || product.imageUrl || url || "")
+    : (url || "");
   const [err, setErr] = useState(false);
   const placeholder = (
     <div
-      className={size > 40 ? "crm-card-thumb-placeholder" : "crm-table .product-thumb-placeholder"}
       style={{
         width: size, height: size, borderRadius: radius,
         background: C.creamDeep, border: `1px solid ${C.line}`,
@@ -659,10 +719,10 @@ function Thumb({ url, size = 40, radius = 6 }) {
       <ImageOff size={size > 40 ? 20 : 14} />
     </div>
   );
-  if (err || !url) return placeholder;
+  if (err || !resolved) return placeholder;
   return (
     <img
-      src={url} alt=""
+      src={resolved} alt=""
       onError={() => setErr(true)}
       style={{
         width: size, height: size, borderRadius: radius,
@@ -761,14 +821,28 @@ async function uploadToCloudinary(file, onProgress) {
    PRODUCT MODAL  (Add / Edit)
 ───────────────────────────────────────────────── */
 function ProductModal({ mode, initial, onSave, onClose }) {
-  const [form,           setForm]           = useState(initial ?? EMPTY_FORM);
+  // Normalise initial: populate images/mainImage from legacy imageUrl if needed
+  const normaliseInitial = (src) => {
+    const base = { ...EMPTY_FORM, ...src };
+    if (!Array.isArray(base.images)) base.images = [];
+    // Back-fill images from legacy imageUrl so existing products show their image
+    if (base.images.length === 0 && base.imageUrl) {
+      base.images = [base.imageUrl];
+    }
+    if (!base.mainImage && base.images.length > 0) {
+      base.mainImage = base.images[0];
+    }
+    return base;
+  };
+
+  const [form,           setForm]           = useState(() => normaliseInitial(initial ?? EMPTY_FORM));
   const [errors,         setErrors]         = useState({});
   const [saving,         setSaving]         = useState(false);
   const [uploading,      setUploading]      = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadStatus,   setUploadStatus]   = useState(""); // "" | "success" | "error"
+  const [uploadStatus,   setUploadStatus]   = useState("");
   const [uploadMsg,      setUploadMsg]      = useState("");
-  const firstRef   = useRef(null);
+  const firstRef    = useRef(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => { firstRef.current?.focus(); }, []);
@@ -783,31 +857,57 @@ function ProductModal({ mode, initial, onSave, onClose }) {
   const set = (field) => (e) =>
     setForm((f) => ({ ...f, [field]: e.target.value }));
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!fileInputRef.current) return;
-    fileInputRef.current.value = ""; // reset so same file can be re-selected
-    if (!file) return;
+  /* Add one or more uploaded URLs to images[], keep mainImage/imageUrl in sync */
+  const addImages = (urls) => {
+    setForm((f) => {
+      const merged = [...f.images, ...urls];
+      const main   = f.mainImage || merged[0] || "";
+      return { ...f, images: merged, mainImage: main, imageUrl: main };
+    });
+  };
 
-    // Basic client-side guard
-    if (!file.type.startsWith("image/")) {
+  const removeImage = (url) => {
+    setForm((f) => {
+      const next = f.images.filter((u) => u !== url);
+      const main = f.mainImage === url ? (next[0] || "") : f.mainImage;
+      return { ...f, images: next, mainImage: main, imageUrl: main };
+    });
+  };
+
+  const setMainImage = (url) => {
+    setForm((f) => ({ ...f, mainImage: url, imageUrl: url }));
+  };
+
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!fileInputRef.current) return;
+    fileInputRef.current.value = "";
+    if (!files.length) return;
+
+    const invalid = files.find((f) => !f.type.startsWith("image/"));
+    if (invalid) {
       setUploadStatus("error");
-      setUploadMsg("Please select an image file.");
+      setUploadMsg("Please select image files only.");
       return;
     }
 
     setUploading(true);
     setUploadProgress(0);
     setUploadStatus("");
-    setUploadMsg("Uploading…");
+    setUploadMsg(`Uploading ${files.length} image${files.length > 1 ? "s" : ""}…`);
 
     try {
-      const url = await uploadToCloudinary(file, (pct) => {
-        setUploadProgress(pct);
-      });
-      setForm((f) => ({ ...f, imageUrl: url }));
+      const urls = [];
+      for (let i = 0; i < files.length; i++) {
+        const url = await uploadToCloudinary(files[i], (pct) => {
+          // Progress across all files combined
+          setUploadProgress(Math.round(((i + pct / 100) / files.length) * 100));
+        });
+        urls.push(url);
+      }
+      addImages(urls);
       setUploadStatus("success");
-      setUploadMsg("Image uploaded successfully.");
+      setUploadMsg(`${urls.length} image${urls.length > 1 ? "s" : ""} uploaded successfully.`);
     } catch (err) {
       console.error("Cloudinary upload error:", err);
       setUploadStatus("error");
@@ -917,15 +1017,23 @@ function ProductModal({ mode, initial, onSave, onClose }) {
             />
           </div>
 
-          {/* Image Upload */}
+          {/* Multi-Image Upload */}
           <div className="crm-field">
-            <label className="crm-label">Product Image</label>
+            <label className="crm-label">
+              Product Images
+              {form.images.length > 0 && (
+                <span style={{ fontWeight: 400, color: C.mist, textTransform: "none", letterSpacing: 0, marginLeft: 6 }}>
+                  ({form.images.length} · click thumbnail to set main)
+                </span>
+              )}
+            </label>
 
-            {/* Hidden file input */}
+            {/* Hidden file input — multiple */}
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple
               style={{ display: "none" }}
               onChange={handleFileChange}
             />
@@ -938,39 +1046,61 @@ function ProductModal({ mode, initial, onSave, onClose }) {
               onClick={() => fileInputRef.current?.click()}
             >
               <Upload size={14} />
-              {uploading ? `Uploading… ${uploadProgress}%` : "Choose Image"}
+              {uploading ? `Uploading… ${uploadProgress}%` : "Add Images"}
             </button>
 
-            {/* Progress bar — visible only while uploading */}
+            {/* Progress bar */}
             {uploading && (
               <div className="crm-upload-progress-wrap">
-                <div
-                  className="crm-upload-progress-bar"
-                  style={{ width: `${uploadProgress}%` }}
-                />
+                <div className="crm-upload-progress-bar" style={{ width: `${uploadProgress}%` }} />
               </div>
             )}
 
             {/* Status message */}
             {uploadMsg && (
-              <p className={`crm-upload-status ${uploadStatus}`}>
-                {uploadMsg}
-              </p>
+              <p className={`crm-upload-status ${uploadStatus}`}>{uploadMsg}</p>
             )}
 
-            {/* Image preview */}
-            {form.imageUrl ? (
-              <img
-                src={form.imageUrl}
-                alt="Preview"
-                className="crm-img-preview"
-                onError={(e) => { e.currentTarget.style.display = "none"; }}
-              />
+            {/* Thumbnail gallery */}
+            {form.images.length > 0 ? (
+              <div className="crm-img-gallery">
+                {form.images.map((url, i) => {
+                  const isMain = url === form.mainImage || (i === 0 && !form.mainImage);
+                  return (
+                    <div
+                      key={url + i}
+                      className={`crm-img-thumb-wrap${isMain ? " main-img" : ""}`}
+                      onClick={() => setMainImage(url)}
+                      title="Click to set as main image"
+                    >
+                      <img src={url} alt={`Product image ${i + 1}`} onError={(e) => { e.currentTarget.style.opacity = "0.3"; }} />
+                      {isMain && <span className="crm-img-main-badge">Main</span>}
+                      {!isMain && (
+                        <button
+                          type="button"
+                          className="crm-img-set-main"
+                          onClick={(e) => { e.stopPropagation(); setMainImage(url); }}
+                        >
+                          Set main
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className="crm-img-thumb-remove"
+                        onClick={(e) => { e.stopPropagation(); removeImage(url); }}
+                        aria-label="Remove image"
+                      >
+                        <X size={10} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
               <div className="crm-img-preview-placeholder">
                 <ImageOff size={22} />
                 <span style={{ fontFamily: FONT_BODY, fontSize: 11, color: C.mist }}>
-                  No image — upload one above to preview
+                  No images — add some above
                 </span>
               </div>
             )}
@@ -1217,7 +1347,7 @@ const ProductTable = memo(function ProductTable({ products, onEdit, onDelete }) 
             <tr key={p.id} style={{ animationDelay: `${i * 0.04}s` }}>
               <td>
                 <div className="crm-name-cell">
-                  <Thumb url={p.imageUrl} size={40} radius={6} />
+                  <Thumb product={p} size={40} radius={6} />
                   <div>
                     <div className="crm-name-text" title={p.name}>{p.name}</div>
                     {p.description && (
@@ -1271,7 +1401,7 @@ const ProductCards = memo(function ProductCards({ products, onEdit, onDelete }) 
     <div className="crm-cards">
       {products.map((p, i) => (
         <div key={p.id} className="crm-card" style={{ animationDelay: `${i * 0.05}s` }}>
-          <Thumb url={p.imageUrl} size={56} radius={8} />
+          <Thumb product={p} size={56} radius={8} />
           <div className="crm-card-body">
             <div className="crm-card-name">{p.name}</div>
             <div className="crm-card-cat">{p.category}</div>
