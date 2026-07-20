@@ -1,248 +1,270 @@
-import React, { useCallback, useEffect } from "react";
-import { ArrowRight } from "lucide-react";
-import { C, FONT_DISPLAY, FONT_BODY, IMG } from "../constants/theme";
+import React, { useCallback, useEffect, useRef } from "react";
+import { C, FONT_DISPLAY, FONT_BODY } from "../constants/theme";
 
 /* ═══════════════════════════════════════════════
    HERO SECTION — SELARA PREMIUM FASHION
+   Video hero · centered · cinematic
 ═══════════════════════════════════════════════ */
 
-const SELARA_HERO_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap');
+const DESKTOP_VIDEO = "https://res.cloudinary.com/leu4dssl/video/upload/v1784549194/lv_0_20260720170213_osqfmo.mp4";
+const MOBILE_VIDEO  = "https://res.cloudinary.com/leu4dssl/video/upload/v1784549196/lv_0_20260720170337_gpew9h.mp4";
 
-  @keyframes selara-fadeUp {
-    from { opacity: 0; transform: translateY(32px); }
+const SELARA_HERO_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap');
+
+  @keyframes sh-fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  @keyframes selara-fadeIn {
+  @keyframes sh-fadeIn {
     from { opacity: 0; }
     to   { opacity: 1; }
   }
-  @keyframes selara-growLine {
-    from { height: 0; opacity: 0; }
-    to   { height: 48px; opacity: 0.5; }
+  @keyframes sh-growLine {
+    from { transform: scaleY(0); opacity: 0; }
+    to   { transform: scaleY(1); opacity: 0.45; }
   }
-  @keyframes selara-shimmer-text {
-    0%   { background-position: -200% center; }
-    100% { background-position: 200% center; }
+  @keyframes sh-scrollBob {
+    0%, 100% { transform: translateY(0); opacity: 0.45; }
+    50%       { transform: translateY(6px); opacity: 0.22; }
   }
 
-  .selara-btn {
-    display: inline-flex;
+  .sh-video-wrap {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .sh-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    will-change: transform;
+  }
+  /* Show/hide by breakpoint — no JS media query needed */
+  .sh-video-desktop { display: block; }
+  .sh-video-mobile  { display: none;  }
+  @media (max-width: 768px) {
+    .sh-video-desktop { display: none;  }
+    .sh-video-mobile  { display: block; }
+  }
+
+  .sh-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom,
+        rgba(15,12,10,0.30) 0%,
+        rgba(15,12,10,0.10) 35%,
+        rgba(15,12,10,0.18) 65%,
+        rgba(15,12,10,0.62) 100%
+      );
+    pointer-events: none;
+  }
+
+  .sh-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    text-align: center;
+    padding: 0 24px;
+    /* Subtle upward offset so text reads as vertically centered with scroll room */
+    padding-bottom: 6vh;
+  }
+
+  .sh-eyebrow {
     font-family: 'Jost', sans-serif;
-    font-size: 10px;
-    font-weight: 400;
-    letter-spacing: 0.24em;
+    font-size: clamp(8px, 0.72vw, 10px);
+    font-weight: 300;
+    letter-spacing: 0.50em;
     text-transform: uppercase;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    padding: 16px 40px;
-    border-radius: 0;
-    transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease;
-    white-space: nowrap;
+    color: rgba(242,196,206,0.65);
+    margin: 0 0 28px;
+    animation: sh-fadeIn 1.2s ease 0.6s both;
   }
 
-  .selara-btn-primary {
-    background: rgba(253,248,245,0.95);
-    color: #1C1C1C;
-    border: 1px solid rgba(253,248,245,0.95);
-  }
-  .selara-btn-primary:hover {
-    background: #C9818F;
-    color: #fff;
-    border-color: #C9818F;
+  .sh-logo {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
+    font-size: clamp(64px, 13vw, 148px);
+    line-height: 0.88;
+    letter-spacing: 0.18em;
+    color: rgba(253,248,245,0.97);
+    text-shadow: 0 4px 80px rgba(0,0,0,0.25);
+    margin: 0 0 28px;
+    animation: sh-fadeUp 1.2s cubic-bezier(0.22,0.61,0.36,1) 0.2s both;
+    user-select: none;
   }
 
-  .selara-btn-ghost {
-    background: transparent;
+  .sh-divider {
+    width: 1px;
+    height: 44px;
+    background: rgba(242,196,206,0.55);
+    margin: 0 auto 28px;
+    transform-origin: top;
+    animation: sh-growLine 0.8s ease 0.9s both;
+  }
+
+  .sh-tagline {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(15px, 1.8vw, 22px);
+    letter-spacing: 0.06em;
     color: rgba(253,248,245,0.70);
-    border: 1px solid rgba(253,248,245,0.28);
+    margin: 0;
+    animation: sh-fadeUp 1.2s cubic-bezier(0.22,0.61,0.36,1) 1.0s both;
+    user-select: none;
   }
-  .selara-btn-ghost:hover {
-    color: rgba(253,248,245,0.95);
-    border-color: rgba(253,248,245,0.60);
-    background: rgba(253,248,245,0.06);
+
+  /* Scroll arrow */
+  .sh-scroll {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+    animation: sh-fadeIn 1s ease 2.0s both;
+  }
+  .sh-scroll-label {
+    font-family: 'Jost', sans-serif;
+    font-size: 7px;
+    font-weight: 300;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: rgba(242,196,206,0.45);
+    user-select: none;
+  }
+  .sh-scroll-arrow {
+    width: 14px;
+    height: 14px;
+    border-right: 0.5px solid rgba(242,196,206,0.45);
+    border-bottom: 0.5px solid rgba(242,196,206,0.45);
+    transform: rotate(45deg);
+    animation: sh-scrollBob 2.2s ease-in-out 2.2s infinite;
+  }
+
+  /* Reduced-motion: disable all animation */
+  @media (prefers-reduced-motion: reduce) {
+    .sh-logo, .sh-eyebrow, .sh-divider, .sh-tagline,
+    .sh-scroll, .sh-scroll-arrow {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .sh-divider { transform-origin: top; transform: scaleY(1); opacity: 0.45; }
+  }
+
+  /* Mobile tweaks */
+  @media (max-width: 480px) {
+    .sh-eyebrow  { letter-spacing: 0.38em; margin-bottom: 20px; }
+    .sh-divider  { height: 32px; margin-bottom: 20px; }
+    .sh-tagline  { font-size: 15px; letter-spacing: 0.04em; }
+    .sh-scroll   { bottom: 28px; }
   }
 `;
 
 export default function HeroSection({ settings = {} }) {
-  const scrollToShop = useCallback(() =>
-    document.getElementById("featured")?.scrollIntoView({ behavior: "smooth" }),
-  []);
+  const desktopRef = useRef(null);
+  const mobileRef  = useRef(null);
 
+  /* Ensure autoplay on mobile — must be muted */
+  useEffect(() => {
+    [desktopRef, mobileRef].forEach(ref => {
+      const v = ref.current;
+      if (!v) return;
+      v.muted = true;
+      v.playsInline = true;
+      const play = () => v.play().catch(() => {});
+      if (v.readyState >= 1) { play(); }
+      else { v.addEventListener("loadedmetadata", play, { once: true }); }
+    });
+  }, []);
+
+  /* Inject CSS once */
   useEffect(() => {
     if (!document.getElementById("selara-hero-css")) {
-      const style = document.createElement("style");
-      style.id = "selara-hero-css";
-      style.textContent = SELARA_HERO_CSS;
-      document.head.appendChild(style);
+      const s = document.createElement("style");
+      s.id = "selara-hero-css";
+      s.textContent = SELARA_HERO_CSS;
+      document.head.appendChild(s);
     }
   }, []);
 
+  const storeName = settings.storeName || "SELARA";
+
   return (
     <section
-      style={{ position: "relative", height: "100vh", minHeight: 560, overflow: "hidden" }}
-      aria-label={`Welcome to ${settings.storeName || "Selara"}`}
+      style={{ position: "relative", height: "100svh", minHeight: 560, overflow: "hidden" }}
+      aria-label={`Welcome to ${storeName}`}
     >
-      {/* Background image */}
-      <img
-        src={settings.heroBannerUrl || IMG.hero}
-        alt={`${settings.storeName || "Selara"} hero`}
-        fetchPriority="high"
-        decoding="sync"
-        style={{
-          position: "absolute", top: 0, left: 0,
-          width: "100%", height: "100%",
-          objectFit: "cover", objectPosition: "center",
-          userSelect: "none", pointerEvents: "none",
-        }}
-        draggable={false}
-      />
+      {/* ── Video layer ───────────────────────────── */}
+      <div className="sh-video-wrap" aria-hidden="true">
 
-      {/* Soft feminine vignette — lighter than before, blush tint at bottom */}
-      <div aria-hidden="true" style={{
-        position: "absolute", inset: 0,
-        background: `
-          linear-gradient(to right,  rgba(28,28,28,0.72) 0%, rgba(28,28,28,0.20) 55%, rgba(28,28,28,0.36) 100%),
-          linear-gradient(to bottom, rgba(28,28,28,0.18) 0%, rgba(28,28,28,0.02) 38%, rgba(28,28,28,0.58) 100%)
-        `,
-        pointerEvents: "none",
-      }} />
+        {/* Desktop video */}
+        <video
+          ref={desktopRef}
+          className="sh-video sh-video-desktop"
+          src={DESKTOP_VIDEO}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          disablePictureInPicture
+          disableRemotePlayback
+        />
 
-      {/* Vertical season label — right edge */}
-      <div aria-hidden="true" style={{
-        position: "absolute", right: 32, top: "50%",
-        transform: "translateY(-50%) rotate(90deg)",
-        fontFamily: "'Jost', sans-serif",
-        fontSize: 8,
-        letterSpacing: "0.40em",
-        textTransform: "uppercase",
-        color: "rgba(242,196,206,0.35)",
-        zIndex: 3,
-        whiteSpace: "nowrap",
-        animation: "selara-fadeIn 1.2s ease 1.6s both",
-        userSelect: "none",
-      }}>
-        New Collection · 2026
+        {/* Mobile video */}
+        <video
+          ref={mobileRef}
+          className="sh-video sh-video-mobile"
+          src={MOBILE_VIDEO}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          disablePictureInPicture
+          disableRemotePlayback
+        />
       </div>
 
-      {/* Main content — bottom-left editorial anchor */}
-      <div style={{
-        position: "relative", zIndex: 2,
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        justifyContent: "flex-end",
-        padding: "0 7% 9%",
-        maxWidth: 860,
-      }}>
+      {/* ── Gradient overlay ──────────────────────── */}
+      <div className="sh-overlay" aria-hidden="true" />
 
-        {/* Eyebrow */}
-        <p style={{
-          fontFamily: "'Jost', sans-serif",
-          fontSize: "clamp(8px, 0.78vw, 10px)",
-          letterSpacing: "0.44em",
-          textTransform: "uppercase",
-          color: "rgba(242,196,206,0.70)",
-          marginBottom: 22,
-          animation: "selara-fadeUp 1s ease 0.10s both",
-        }}>
-          {settings.tagline || "Feminine · Modern · Pret"}
+      {/* ── Centered text content ─────────────────── */}
+      <div className="sh-content">
+        <p className="sh-eyebrow" aria-hidden="true">
+          New Collection · 2026
         </p>
 
-        {/* Headline */}
-        <h1 style={{
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
-          fontWeight: 300,
-          fontSize: "clamp(58px, 10.5vw, 126px)",
-          lineHeight: 0.85,
-          color: "rgba(253,248,245,0.97)",
-          letterSpacing: "0.08em",
-          marginBottom: 24,
-          textShadow: "0 2px 60px rgba(0,0,0,0.28)",
-          animation: "selara-fadeUp 1s ease 0.22s both",
-        }}>
-          {(settings.storeName || "SELARA").toUpperCase()}
+        <h1 className="sh-logo">
+          {storeName.toUpperCase()}
         </h1>
 
-        {/* Rose hairline */}
-        <div style={{
-          width: 48,
-          height: "0.5px",
-          background: "rgba(242,196,206,0.55)",
-          marginBottom: 20,
-          animation: "selara-fadeIn 1s ease 0.42s both",
-        }} />
+        <div className="sh-divider" aria-hidden="true" />
 
-        {/* Subtitle */}
-        <p style={{
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
-          fontStyle: "italic",
-          fontWeight: 300,
-          fontSize: "clamp(17px, 2vw, 25px)",
-          color: "rgba(253,248,245,0.62)",
-          letterSpacing: "0.03em",
-          lineHeight: 1.5,
-          marginBottom: 52,
-          maxWidth: 460,
-          animation: "selara-fadeUp 1s ease 0.34s both",
-        }}>
-          {settings.heroSubtitle || "Feminine silhouettes, modern cuts — crafted for the woman who knows her style."}
+        <p className="sh-tagline">
+          A curated prêt experience
         </p>
-
-        {/* CTAs */}
-        <div style={{
-          display: "flex",
-          gap: 12,
-          flexWrap: "wrap",
-          animation: "selara-fadeUp 1s ease 0.52s both",
-        }}>
-          <button className="selara-btn selara-btn-primary" onClick={scrollToShop}>
-            Shop the Collection <ArrowRight size={11} />
-          </button>
-          <button
-            className="selara-btn selara-btn-ghost"
-            onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
-          >
-            Our Story
-          </button>
-        </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div aria-hidden="true" style={{
-        position: "absolute",
-        bottom: 40,
-        left: "calc(7% + 1px)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 12,
-        pointerEvents: "none",
-        zIndex: 3,
-        animation: "selara-fadeIn 1s ease 1.6s both",
-      }}>
-        <p style={{
-          fontFamily: "'Jost', sans-serif",
-          fontSize: 8,
-          letterSpacing: "0.36em",
-          textTransform: "uppercase",
-          color: "rgba(242,196,206,0.35)",
-          writingMode: "vertical-rl",
-          transform: "rotate(180deg)",
-          userSelect: "none",
-        }}>
-          Scroll
-        </p>
-        <span style={{
-          display: "block",
-          width: "0.5px",
-          background: "rgba(242,196,206,0.35)",
-          animation: "selara-growLine 1s ease 1.7s both",
-        }} />
+      {/* ── Scroll indicator ──────────────────────── */}
+      <div className="sh-scroll" aria-hidden="true">
+        <span className="sh-scroll-label">Scroll</span>
+        <span className="sh-scroll-arrow" />
       </div>
     </section>
   );
