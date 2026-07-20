@@ -41,6 +41,8 @@ export function useReveal() {
    FIRESTORE PRODUCTS HOOK
    - Fetches only available === true products
    - Sorts: featured first, then original order preserved
+   - Spreads all doc fields so images[], mainImage, sizes
+     are never silently dropped
 ═══════════════════════════════════════════════ */
 export function useProducts() {
   const [products, setProducts] = useState([]);
@@ -59,20 +61,35 @@ export function useProducts() {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const raw = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.data().name ?? "",
-          price: doc.data().price ?? 0,
-          category: doc.data().category ?? "",
-          img: doc.data().img ?? doc.data().imageUrl ?? fallbackImg(doc.data().category),
-          desc: doc.data().desc ?? doc.data().description ?? "",
-          tag: doc.data().tag ?? "",
-          featured: doc.data().featured ?? false,
-          available: doc.data().available,
-          order: doc.data().order ?? 0,
-        }));
+        const raw = snapshot.docs.map((docSnap) => {
+          const d = docSnap.data();
+          return {
+            // Spread everything first so no Firestore field is ever silently dropped
+            ...d,
+            id:        docSnap.id,
+            name:      d.name      ?? "",
+            price:     d.price     ?? 0,
+            category:  d.category  ?? "",
+            desc:      d.desc      ?? d.description ?? "",
+            tag:       d.tag       ?? "",
+            featured:  d.featured  ?? false,
+            available: d.available,
+            order:     d.order     ?? 0,
+            sizes:     d.sizes     ?? [],
+            // Multi-image fields (set by the admin multi-image uploader)
+            images:    Array.isArray(d.images) ? d.images : [],
+            mainImage: d.mainImage ?? "",
+            imageUrl:  d.imageUrl  ?? "",
+            // img — normalised single image for ProductCard backwards compat
+            img: d.mainImage
+              || (Array.isArray(d.images) && d.images[0])
+              || d.imageUrl
+              || d.img
+              || fallbackImg(d.category),
+          };
+        });
 
-        const featured = raw.filter((p) => p.featured);
+        const featured    = raw.filter((p) => p.featured);
         const nonFeatured = raw.filter((p) => !p.featured);
 
         setProducts([...featured, ...nonFeatured]);

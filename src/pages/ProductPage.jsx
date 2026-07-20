@@ -18,10 +18,14 @@ import CartDrawer   from "../components/CartDrawer";
 ───────────────────────────────────────────── */
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
-/* Checks images[], imageUrl (admin Firestore field), img in order */
+/* Checks images[], mainImage, imageUrl, img — in priority order */
 function getImages(product) {
   if (!product) return [];
+  // Prefer the images array (set by the multi-image admin)
   if (Array.isArray(product.images) && product.images.length > 0) return product.images;
+  // mainImage alone (edge case where images[] wasn't saved)
+  if (product.mainImage) return [product.mainImage];
+  // Legacy single-image fields
   const single = product.imageUrl || product.img;
   if (single) return [single];
   return [];
