@@ -1,34 +1,45 @@
-import React, { useCallback, useEffect, useRef } from "react";
-import { C, FONT_DISPLAY, FONT_BODY } from "../constants/theme";
+import React, { useEffect, useRef } from "react";
 
 /* ═══════════════════════════════════════════════
-   HERO SECTION — SELARA PREMIUM FASHION
-   Video hero · centered · cinematic
+   SELARA — SCROLL-SCRUBBED CINEMATIC HERO
+   · Video currentTime driven by scroll progress
+   · Text reveals at ~3.5 s mark in video
+   · Pure RAF — no Framer Motion dependency
+   · GPU-only transforms, no layout paint
 ═══════════════════════════════════════════════ */
 
 const DESKTOP_VIDEO = "https://res.cloudinary.com/leu4dssl/video/upload/v1784549194/lv_0_20260720170213_osqfmo.mp4";
 const MOBILE_VIDEO  = "https://res.cloudinary.com/leu4dssl/video/upload/v1784549196/lv_0_20260720170337_gpew9h.mp4";
 
-const SELARA_HERO_CSS = `
+// Total video duration (seconds). Scrub covers full clip.
+const VIDEO_DURATION = 4;
+// Scroll height multiplier — more = slower scrub feel
+const SCROLL_FACTOR  = 4; // section = 4 × 100vh
+
+// Text reveal: start fading in when video reaches this point (0–1 progress)
+const TEXT_REVEAL_START = 3.5 / VIDEO_DURATION; // ≈ 0.875
+const TEXT_REVEAL_END   = 1.0;
+
+const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap');
 
-  @keyframes sh-fadeUp {
-    from { opacity: 0; transform: translateY(28px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes sh-fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-  @keyframes sh-growLine {
-    from { transform: scaleY(0); opacity: 0; }
-    to   { transform: scaleY(1); opacity: 0.45; }
-  }
-  @keyframes sh-scrollBob {
-    0%, 100% { transform: translateY(0); opacity: 0.45; }
-    50%       { transform: translateY(6px); opacity: 0.22; }
+  /* ── Scroll container ───────────────────────── */
+  .sh-outer {
+    position: relative;
+    /* tall so scroll gives us room to scrub */
+    height: calc(100svh * ${SCROLL_FACTOR});
   }
 
+  /* ── Sticky viewport ────────────────────────── */
+  .sh-sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 560px;
+    overflow: hidden;
+  }
+
+  /* ── Video layer ────────────────────────────── */
   .sh-video-wrap {
     position: absolute;
     inset: 0;
@@ -41,9 +52,7 @@ const SELARA_HERO_CSS = `
     height: 100%;
     object-fit: cover;
     object-position: center;
-    will-change: transform;
   }
-  /* Show/hide by breakpoint — no JS media query needed */
   .sh-video-desktop { display: block; }
   .sh-video-mobile  { display: none;  }
   @media (max-width: 768px) {
@@ -51,80 +60,69 @@ const SELARA_HERO_CSS = `
     .sh-video-mobile  { display: block; }
   }
 
+  /* ── Gradient overlay ───────────────────────── */
   .sh-overlay {
     position: absolute;
     inset: 0;
     background:
       linear-gradient(to bottom,
-        rgba(15,12,10,0.30) 0%,
-        rgba(15,12,10,0.10) 35%,
-        rgba(15,12,10,0.18) 65%,
-        rgba(15,12,10,0.62) 100%
+        rgba(10,8,6,0.28) 0%,
+        rgba(10,8,6,0.08) 30%,
+        rgba(10,8,6,0.14) 60%,
+        rgba(10,8,6,0.72) 100%
       );
     pointer-events: none;
   }
 
+  /* ── Text content ───────────────────────────── */
   .sh-content {
-    position: relative;
+    position: absolute;
+    inset: 0;
     z-index: 2;
-    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 0 24px;
-    /* Subtle upward offset so text reads as vertically centered with scroll room */
-    padding-bottom: 6vh;
-  }
-
-  .sh-eyebrow {
-    font-family: 'Jost', sans-serif;
-    font-size: clamp(8px, 0.72vw, 10px);
-    font-weight: 300;
-    letter-spacing: 0.50em;
-    text-transform: uppercase;
-    color: rgba(242,196,206,0.65);
-    margin: 0 0 28px;
-    animation: sh-fadeIn 1.2s ease 0.6s both;
+    padding: 0 24px 8vh;
+    /* starts invisible; JS drives opacity + translateY */
+    opacity: 0;
+    transform: translateY(22px);
+    will-change: opacity, transform;
   }
 
   .sh-logo {
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-weight: 300;
-    font-size: clamp(64px, 13vw, 148px);
-    line-height: 0.88;
+    font-size: clamp(60px, 12.5vw, 144px);
+    line-height: 0.9;
     letter-spacing: 0.18em;
     color: rgba(253,248,245,0.97);
-    text-shadow: 0 4px 80px rgba(0,0,0,0.25);
-    margin: 0 0 28px;
-    animation: sh-fadeUp 1.2s cubic-bezier(0.22,0.61,0.36,1) 0.2s both;
+    text-shadow: 0 2px 48px rgba(0,0,0,0.30);
+    margin: 0 0 22px;
     user-select: none;
   }
 
   .sh-divider {
     width: 1px;
-    height: 44px;
-    background: rgba(242,196,206,0.55);
-    margin: 0 auto 28px;
-    transform-origin: top;
-    animation: sh-growLine 0.8s ease 0.9s both;
+    height: 40px;
+    background: rgba(242,196,206,0.60);
+    margin: 0 auto 22px;
   }
 
   .sh-tagline {
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-style: italic;
     font-weight: 300;
-    font-size: clamp(15px, 1.8vw, 22px);
-    letter-spacing: 0.06em;
-    color: rgba(253,248,245,0.70);
+    font-size: clamp(15px, 1.7vw, 21px);
+    letter-spacing: 0.07em;
+    color: rgba(253,248,245,0.82);
     margin: 0;
-    animation: sh-fadeUp 1.2s cubic-bezier(0.22,0.61,0.36,1) 1.0s both;
     user-select: none;
   }
 
-  /* Scroll arrow */
-  .sh-scroll {
+  /* ── Scroll hint (visible before first scrub) ── */
+  .sh-hint {
     position: absolute;
     bottom: 36px;
     left: 50%;
@@ -135,137 +133,190 @@ const SELARA_HERO_CSS = `
     align-items: center;
     gap: 8px;
     pointer-events: none;
-    animation: sh-fadeIn 1s ease 2.0s both;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+    will-change: opacity;
   }
-  .sh-scroll-label {
+  .sh-hint.hidden { opacity: 0; }
+  .sh-hint-label {
     font-family: 'Jost', sans-serif;
     font-size: 7px;
     font-weight: 300;
-    letter-spacing: 0.42em;
+    letter-spacing: 0.44em;
     text-transform: uppercase;
-    color: rgba(242,196,206,0.45);
+    color: rgba(242,196,206,0.50);
     user-select: none;
   }
-  .sh-scroll-arrow {
-    width: 14px;
-    height: 14px;
-    border-right: 0.5px solid rgba(242,196,206,0.45);
-    border-bottom: 0.5px solid rgba(242,196,206,0.45);
+  @keyframes sh-bob {
+    0%, 100% { transform: rotate(45deg) translateY(0);   opacity: 0.50; }
+    50%       { transform: rotate(45deg) translateY(5px); opacity: 0.25; }
+  }
+  .sh-hint-arrow {
+    width: 13px;
+    height: 13px;
+    border-right: 0.5px solid rgba(242,196,206,0.50);
+    border-bottom: 0.5px solid rgba(242,196,206,0.50);
     transform: rotate(45deg);
-    animation: sh-scrollBob 2.2s ease-in-out 2.2s infinite;
+    animation: sh-bob 2s ease-in-out infinite;
   }
 
-  /* Reduced-motion: disable all animation */
   @media (prefers-reduced-motion: reduce) {
-    .sh-logo, .sh-eyebrow, .sh-divider, .sh-tagline,
-    .sh-scroll, .sh-scroll-arrow {
-      animation: none !important;
+    .sh-content {
       opacity: 1 !important;
       transform: none !important;
     }
-    .sh-divider { transform-origin: top; transform: scaleY(1); opacity: 0.45; }
+    .sh-hint-arrow { animation: none; }
   }
 
-  /* Mobile tweaks */
   @media (max-width: 480px) {
-    .sh-eyebrow  { letter-spacing: 0.38em; margin-bottom: 20px; }
-    .sh-divider  { height: 32px; margin-bottom: 20px; }
-    .sh-tagline  { font-size: 15px; letter-spacing: 0.04em; }
-    .sh-scroll   { bottom: 28px; }
+    .sh-divider  { height: 28px; margin-bottom: 18px; }
+    .sh-hint     { bottom: 28px; }
   }
 `;
 
+// ── Clamp helper ──────────────────────────────
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
 export default function HeroSection({ settings = {} }) {
+  const outerRef   = useRef(null);
   const desktopRef = useRef(null);
   const mobileRef  = useRef(null);
+  const contentRef = useRef(null);
+  const hintRef    = useRef(null);
+  const rafRef     = useRef(null);
+  const prevProg   = useRef(-1);
 
-  /* Ensure autoplay on mobile — must be muted */
+  const storeName = (settings.storeName || "SELARA").toUpperCase();
+
+  /* Inject CSS once */
+  useEffect(() => {
+    if (!document.getElementById("sh-hero-css")) {
+      const s = document.createElement("style");
+      s.id = "sh-hero-css";
+      s.textContent = CSS;
+      document.head.appendChild(s);
+    }
+  }, []);
+
+  /* Load video metadata (no autoplay) */
   useEffect(() => {
     [desktopRef, mobileRef].forEach(ref => {
       const v = ref.current;
       if (!v) return;
       v.muted = true;
       v.playsInline = true;
-      const play = () => v.play().catch(() => {});
-      if (v.readyState >= 1) { play(); }
-      else { v.addEventListener("loadedmetadata", play, { once: true }); }
+      v.pause();
+      // Seek to frame 0 so poster frame is accurate
+      const seek0 = () => { v.currentTime = 0; };
+      if (v.readyState >= 1) seek0();
+      else v.addEventListener("loadedmetadata", seek0, { once: true });
     });
   }, []);
 
-  /* Inject CSS once */
+  /* RAF scroll scrub */
   useEffect(() => {
-    if (!document.getElementById("selara-hero-css")) {
-      const s = document.createElement("style");
-      s.id = "selara-hero-css";
-      s.textContent = SELARA_HERO_CSS;
-      document.head.appendChild(s);
-    }
+    const activeVideo = () =>
+      window.innerWidth > 768 ? desktopRef.current : mobileRef.current;
+
+    const tick = () => {
+      const outer = outerRef.current;
+      if (!outer) return;
+
+      // progress 0 → 1 over the full scroll height of the outer container
+      const rect     = outer.getBoundingClientRect();
+      const total    = outer.offsetHeight - window.innerHeight;
+      const scrolled = -rect.top; // px scrolled past the outer's top
+      const progress = clamp(scrolled / total, 0, 1);
+
+      // Skip work if nothing changed (> 0.001 threshold)
+      if (Math.abs(progress - prevProg.current) < 0.001) {
+        rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
+      prevProg.current = progress;
+
+      // ── Video scrub ──────────────────────────
+      const v = activeVideo();
+      if (v && v.readyState >= 1) {
+        const target = progress * VIDEO_DURATION;
+        // Only seek if delta > one frame (avoid unnecessary decode)
+        if (Math.abs(v.currentTime - target) > 1 / 30) {
+          v.currentTime = target;
+        }
+      }
+
+      // ── Text reveal ──────────────────────────
+      const content = contentRef.current;
+      if (content) {
+        // Normalised 0→1 over the reveal window
+        const t = clamp(
+          (progress - TEXT_REVEAL_START) / (TEXT_REVEAL_END - TEXT_REVEAL_START),
+          0, 1
+        );
+        // Ease: smooth-step
+        const eased = t * t * (3 - 2 * t);
+        content.style.opacity   = eased;
+        content.style.transform = `translateY(${(1 - eased) * 22}px)`;
+      }
+
+      // ── Scroll hint ──────────────────────────
+      const hint = hintRef.current;
+      if (hint) {
+        hint.classList.toggle("hidden", progress > 0.05);
+      }
+
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
-  const storeName = settings.storeName || "SELARA";
-
   return (
-    <section
-      style={{ position: "relative", height: "100svh", minHeight: 560, overflow: "hidden" }}
-      aria-label={`Welcome to ${storeName}`}
-    >
-      {/* ── Video layer ───────────────────────────── */}
-      <div className="sh-video-wrap" aria-hidden="true">
+    <div ref={outerRef} className="sh-outer" aria-label={`Welcome to ${storeName}`}>
+      <div className="sh-sticky">
 
-        {/* Desktop video */}
-        <video
-          ref={desktopRef}
-          className="sh-video sh-video-desktop"
-          src={DESKTOP_VIDEO}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          disablePictureInPicture
-          disableRemotePlayback
-        />
+        {/* ── Video ───────────────────────────── */}
+        <div className="sh-video-wrap" aria-hidden="true">
+          <video
+            ref={desktopRef}
+            className="sh-video sh-video-desktop"
+            src={DESKTOP_VIDEO}
+            muted
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            disableRemotePlayback
+          />
+          <video
+            ref={mobileRef}
+            className="sh-video sh-video-mobile"
+            src={MOBILE_VIDEO}
+            muted
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            disableRemotePlayback
+          />
+        </div>
 
-        {/* Mobile video */}
-        <video
-          ref={mobileRef}
-          className="sh-video sh-video-mobile"
-          src={MOBILE_VIDEO}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          disablePictureInPicture
-          disableRemotePlayback
-        />
+        {/* ── Overlay ─────────────────────────── */}
+        <div className="sh-overlay" aria-hidden="true" />
+
+        {/* ── Text (scroll-driven opacity/Y) ──── */}
+        <div ref={contentRef} className="sh-content">
+          <h1 className="sh-logo">{storeName}</h1>
+          <div className="sh-divider" aria-hidden="true" />
+          <p className="sh-tagline">A curated prêt experience</p>
+        </div>
+
+        {/* ── Scroll hint ─────────────────────── */}
+        <div ref={hintRef} className="sh-hint" aria-hidden="true">
+          <span className="sh-hint-label">Scroll</span>
+          <span className="sh-hint-arrow" />
+        </div>
+
       </div>
-
-      {/* ── Gradient overlay ──────────────────────── */}
-      <div className="sh-overlay" aria-hidden="true" />
-
-      {/* ── Centered text content ─────────────────── */}
-      <div className="sh-content">
-        <p className="sh-eyebrow" aria-hidden="true">
-          New Collection · 2026
-        </p>
-
-        <h1 className="sh-logo">
-          {storeName.toUpperCase()}
-        </h1>
-
-        <div className="sh-divider" aria-hidden="true" />
-
-        <p className="sh-tagline">
-          A curated prêt experience
-        </p>
-      </div>
-
-      {/* ── Scroll indicator ──────────────────────── */}
-      <div className="sh-scroll" aria-hidden="true">
-        <span className="sh-scroll-label">Scroll</span>
-        <span className="sh-scroll-arrow" />
-      </div>
-    </section>
+    </div>
   );
 }
