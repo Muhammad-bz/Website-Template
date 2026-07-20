@@ -1,41 +1,74 @@
 // src/pages/PublicPage.jsx
-// Cart state now lives in CartContext (src/context/CartContext.jsx).
-import React from "react";
+import React, { useState, useCallback, useMemo } from "react";
 
+// Hooks
 import { useProducts, useSiteSettings, useReveal } from "../hooks";
-import { useCart } from "../context/CartContext";
 
+// Global infrastructure
 import GlobalStyles from "../components/GlobalStyles";
 import SiteHead from "../components/SiteHead";
 
+// Layout components
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-import HeroSection    from "../components/HeroSection";
-import TrustStrip     from "../components/TrustStrip";
+// Section components
+import HeroSection from "../components/HeroSection";
+import TrustStrip from "../components/TrustStrip";
 import FeaturedSection from "../components/FeaturedSection";
-import CategoriesSection from "../components/CategoriesSection";
-import MenuSection    from "../components/MenuSection";
-import AboutSection   from "../components/AboutSection";
-import ReviewsSection from "../components/ReviewsSection";
+import MenuSection from "../components/MenuSection";
+import AboutSection from "../components/AboutSection";
 import ContactSection from "../components/ContactSection";
 
+// Cart & checkout
 import CartDrawer from "../components/CartDrawer";
 
 /* ═══════════════════════════════════════════════
    PUBLIC SITE (customer-facing, no auth required)
 ═══════════════════════════════════════════════ */
 export default function PublicPage() {
-  const {
-    cart, cartOpen, cartBouncing, wishlist, cartCount,
-    addToCart, updateQty, removeItem, toggleWish,
-    openCart, closeCart, clearCart,
-  } = useCart();
+  const [cartOpen,     setCartOpen]     = useState(false);
+  const [cartBouncing, setCartBouncing] = useState(false);
+  const [cart,         setCart]         = useState([]);
+  const [wishlist,     setWishlist]     = useState(new Set());
 
   const { products, loading, error } = useProducts();
   const { settings }                 = useSiteSettings();
 
   useReveal();
+
+  const addToCart = useCallback((item) => {
+    setCart((prev) => {
+      const existing = prev.find((i) => i.id === item.id);
+      if (existing)
+        return prev.map((i) => i.id === item.id ? { ...i, qty: i.qty + 1 } : i);
+      return [...prev, { ...item, qty: 1 }];
+    });
+    setCartBouncing(true);
+    setTimeout(() => setCartBouncing(false), 450);
+  }, []);
+
+  const updateQty  = useCallback((id, delta) =>
+    setCart((prev) => prev.map((i) => i.id === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i)),
+  []);
+
+  const removeItem = useCallback((id) =>
+    setCart((prev) => prev.filter((i) => i.id !== id)),
+  []);
+
+  const toggleWish = useCallback((id) =>
+    setWishlist((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    }),
+  []);
+
+  const cartCount = useMemo(() => cart.reduce((s, i) => s + i.qty, 0), [cart]);
+
+  const openCart  = useCallback(() => setCartOpen(true),  []);
+  const closeCart = useCallback(() => setCartOpen(false), []);
+  const clearCart = useCallback(() => setCart([]), []);
 
   return (
     <>
@@ -53,10 +86,8 @@ export default function PublicPage() {
         <HeroSection settings={settings} />
         <TrustStrip />
         <FeaturedSection onAdd={addToCart} wishlist={wishlist} toggleWish={toggleWish} products={products} loading={loading} error={error} />
-        <CategoriesSection products={products} onAdd={addToCart} wishlist={wishlist} toggleWish={toggleWish} />
         <MenuSection     onAdd={addToCart} wishlist={wishlist} toggleWish={toggleWish} products={products} loading={loading} error={error} />
         <AboutSection settings={settings} />
-        <ReviewsSection />
         <ContactSection settings={settings} />
       </main>
 
