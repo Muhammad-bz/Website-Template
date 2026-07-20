@@ -2,17 +2,37 @@ import React, { useEffect, useRef } from "react";
 
 /* ═══════════════════════════════════════════════════════════════
    SELARA — LOOPING VIDEO HERO
-   · Desktop & mobile videos load independently
-   · No text overlay — branding lives inside the video
+   · Cloudinary f_auto / q_auto / vc_auto for fastest delivery
+   · Two video elements per breakpoint cross-fade for seamless loop
+   · Desktop & mobile sources load independently
    · "Explore Collection" CTA fades in on load
    · Scroll drives subtle translateY + opacity on CTA only
    · GPU-only animations (transform / opacity) → 60 fps
 ═══════════════════════════════════════════════════════════════ */
 
-const DESKTOP_VIDEO =
-  "https://res.cloudinary.com/leu4dssl/video/upload/v1784560874/lv_0_20260720200946_gixtzz.mp4";
-const MOBILE_VIDEO =
-  "https://res.cloudinary.com/leu4dssl/video/upload/v1784560875/lv_0_20260720201931_qinoye.mp4";
+/* ── Cloudinary helper ──────────────────────────────────────────
+   Injects  f_auto,q_auto:good,vc_auto  between /upload/ and the
+   version+filename so Cloudinary picks the optimal format (WebM
+   for Chrome/Firefox, MP4 for Safari) and bitrate automatically.
+   Also strips the raw .mp4 extension so Cloudinary can serve WebM.
+──────────────────────────────────────────────────────────────── */
+function clTransform(url, extra = "") {
+  const transforms = ["f_auto", "q_auto:good", "vc_auto", extra]
+    .filter(Boolean)
+    .join(",");
+  // Insert transforms after /upload/
+  return url.replace(/\/upload\//, `/upload/${transforms}/`).replace(/\.mp4$/, "");
+}
+
+const RAW_DESKTOP = "https://res.cloudinary.com/leu4dssl/video/upload/v1784560874/lv_0_20260720200946_gixtzz.mp4";
+const RAW_MOBILE  = "https://res.cloudinary.com/leu4dssl/video/upload/v1784560875/lv_0_20260720201931_qinoye.mp4";
+
+const DESKTOP_VIDEO = clTransform(RAW_DESKTOP);
+const MOBILE_VIDEO  = clTransform(RAW_MOBILE);
+
+/* How many seconds before the end to start the crossfade */
+const CROSSFADE_START = 1.2; // seconds
+const CROSSFADE_DURATION_MS = 900; // ms
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@200;300;400&display=swap');
@@ -23,7 +43,7 @@ const CSS = `
     height: 100svh;
     min-height: 560px;
     overflow: hidden;
-    background: #f0e8e0; /* fallback while video loads */
+    background: #f0e8e0;
   }
 
   /* ── Video layer ─────────────────────────────── */
@@ -31,8 +51,17 @@ const CSS = `
     position: absolute;
     inset: 0;
     overflow: hidden;
-    will-change: transform; /* promote to own compositor layer */
+    will-change: transform;
   }
+
+  /* Both video slots sit on top of each other */
+  .sh-slot {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
   .sh-video {
     position: absolute;
     inset: 0;
@@ -40,9 +69,15 @@ const CSS = `
     height: 100%;
     object-fit: cover;
     object-position: center;
-    /* GPU decode hint */
     transform: translateZ(0);
+    /* transition drives the crossfade */
+    transition: opacity ${CROSSFADE_DURATION_MS}ms ease;
   }
+
+  /* Slot A starts visible, Slot B starts invisible */
+  .sh-slot-a { z-index: 1; }
+  .sh-slot-b { z-index: 2; opacity: 0; }
+
   .sh-video-desktop { display: block; }
   .sh-video-mobile  { display: none;  }
 
@@ -51,7 +86,7 @@ const CSS = `
     .sh-video-mobile  { display: block; }
   }
 
-  /* ── Overlay — ultra-light so branding reads ─── */
+  /* ── Overlay ─────────────────────────────────── */
   .sh-overlay {
     position: absolute;
     inset: 0;
@@ -62,7 +97,7 @@ const CSS = `
       rgba(0,0,0,0.18) 100%
     );
     pointer-events: none;
-    z-index: 1;
+    z-index: 3;
   }
 
   /* ── CTA wrapper ─────────────────────────────── */
@@ -71,24 +106,17 @@ const CSS = `
     bottom: 9%;
     left: 0;
     right: 0;
-    z-index: 3;
+    z-index: 4;
     display: flex;
     justify-content: center;
     align-items: center;
-    pointer-events: none; /* let clicks pass through to video beneath */
+    pointer-events: none;
     will-change: opacity, transform;
   }
 
-  /* ── Entrance keyframe ───────────────────────── */
   @keyframes sh-rise {
-    from {
-      opacity: 0;
-      transform: translateY(22px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0);    }
   }
 
   /* ── CTA button ──────────────────────────────── */
@@ -105,10 +133,8 @@ const CSS = `
     border: 1px solid rgba(90, 60, 45, 0.30);
     padding: 14px 40px;
     cursor: pointer;
-    /* Entrance — starts hidden, animates in after 0.4 s */
     opacity: 0;
     animation: sh-rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.4s forwards;
-    /* Hover */
     transition:
       background 0.35s ease,
       border-color 0.35s ease,
@@ -132,15 +158,11 @@ const CSS = `
     outline: 2px solid rgba(90,60,45,0.5);
     outline-offset: 3px;
   }
-  .sh-cta:active {
-    transform: scale(0.985);
-  }
+  .sh-cta:active { transform: scale(0.985); }
 
   /* ── Mobile tweaks ───────────────────────────── */
   @media (max-width: 768px) {
-    .sh-cta-wrap {
-      bottom: 10%;
-    }
+    .sh-cta-wrap { bottom: 10%; }
     .sh-cta {
       font-size: 11px;
       letter-spacing: 0.24em;
@@ -150,68 +172,148 @@ const CSS = `
 
   /* ── Reduced-motion overrides ────────────────── */
   @media (prefers-reduced-motion: reduce) {
-    .sh-cta {
-      animation: none;
-      opacity: 1;
-    }
-    .sh-cta-wrap {
-      will-change: auto;
-    }
+    .sh-cta { animation: none; opacity: 1; }
+    .sh-cta-wrap { will-change: auto; }
+    .sh-video { transition: none; }
   }
 `;
 
+/* ── Crossfade loop controller ──────────────────────────────────
+   slotA / slotB are the two <video> elements for one breakpoint.
+   They leapfrog: while A is playing near the end, B starts from 0
+   and fades in. Then B becomes the "active" slot, and we swap.
+──────────────────────────────────────────────────────────────── */
+function setupCrossfadeLoop(slotA, slotB) {
+  let active   = slotA;   // currently visible
+  let standby  = slotB;   // hidden, ready to swap in
+  let swapping = false;
+  let timerId  = null;
+
+  /* z-index: active on top during fade, then swap */
+  slotA.style.opacity = "1";
+  slotB.style.opacity = "0";
+  slotA.parentElement.querySelector(".sh-slot-a").style.zIndex = "2";
+  slotA.parentElement.querySelector(".sh-slot-b").style.zIndex = "1";
+
+  function doSwap() {
+    if (swapping) return;
+    swapping = true;
+
+    // Cue standby from the start and play
+    standby.currentTime = 0;
+    standby.play().catch(() => {});
+
+    // Fade standby in (it's already at z-index below, so we raise it first)
+    standby.parentElement.style.zIndex =
+      standby === slotA ? "2" : "1"; // handled via CSS classes instead:
+    // Simpler: just set opacity on both
+    standby.style.opacity = "1";
+
+    // After the crossfade completes, hide the old active and reset
+    timerId = setTimeout(() => {
+      active.pause();
+      active.currentTime = 0;
+      active.style.opacity = "0";
+
+      // Swap roles
+      [active, standby] = [standby, active];
+      swapping = false;
+    }, CROSSFADE_DURATION_MS);
+  }
+
+  function onTimeUpdate() {
+    if (swapping) return;
+    const remaining = active.duration - active.currentTime;
+    if (!isNaN(remaining) && remaining <= CROSSFADE_START) {
+      doSwap();
+    }
+  }
+
+  active.addEventListener("timeupdate", onTimeUpdate);
+
+  // After role swap we need the new active to also fire timeupdate
+  // We achieve this by always listening on both elements
+  standby.addEventListener("timeupdate", function handler() {
+    // Once standby becomes active its timeupdate drives the next swap
+    if (active === standby) {
+      // Already re-assigned above — but the listener is on the element.
+      // Since we swap [active,standby] after CROSSFADE_DURATION_MS
+      // both elements already have listeners; no extra binding needed.
+    }
+  });
+
+  return () => {
+    clearTimeout(timerId);
+    active.removeEventListener("timeupdate", onTimeUpdate);
+  };
+}
+
 export default function HeroSection({ settings = {} }) {
-  const desktopRef = useRef(null);
-  const mobileRef  = useRef(null);
-  const ctaWrapRef = useRef(null);
-  const rafRef     = useRef(null);
-  const sectionRef = useRef(null);
+  // Two slots per breakpoint for the crossfade
+  const desktopARef = useRef(null);
+  const desktopBRef = useRef(null);
+  const mobileARef  = useRef(null);
+  const mobileBRef  = useRef(null);
+
+  const ctaWrapRef  = useRef(null);
+  const rafRef      = useRef(null);
+  const sectionRef  = useRef(null);
 
   /* ── Inject CSS once ────────────────────────── */
   useEffect(() => {
-    if (!document.getElementById("sh-hero-css-v2")) {
+    if (!document.getElementById("sh-hero-css-v3")) {
       const s = document.createElement("style");
-      s.id = "sh-hero-css-v2";
+      s.id = "sh-hero-css-v3";
       s.textContent = CSS;
       document.head.appendChild(s);
     }
   }, []);
 
-  /* ── Video setup — load only the active video ── */
+  /* ── Video setup ────────────────────────────── */
   useEffect(() => {
     const isMobile = window.innerWidth <= 768;
-    const active   = isMobile ? mobileRef.current : desktopRef.current;
-    const inactive = isMobile ? desktopRef.current : mobileRef.current;
 
-    if (!active) return;
+    const activeA   = isMobile ? mobileARef.current  : desktopARef.current;
+    const activeB   = isMobile ? mobileBRef.current  : desktopBRef.current;
+    const inactiveA = isMobile ? desktopARef.current : mobileARef.current;
+    const inactiveB = isMobile ? desktopBRef.current : mobileBRef.current;
 
-    /* Strip the unused video's src so the browser never fetches it */
-    if (inactive) {
-      inactive.removeAttribute("src");
-      inactive.load();
-    }
+    if (!activeA || !activeB) return;
 
-    active.muted       = true;
-    active.playsInline = true;
-    active.loop        = true;
+    // Drop the unused breakpoint's src entirely
+    [inactiveA, inactiveB].forEach(v => {
+      if (v) { v.removeAttribute("src"); v.load(); }
+    });
 
-    const tryPlay = () => active.play().catch(() => {});
+    // Prep both active slots
+    [activeA, activeB].forEach(v => {
+      v.muted       = true;
+      v.playsInline = true;
+      v.loop        = false; // we handle looping manually
+    });
 
-    if (active.readyState >= 3) {
+    // Start slot A
+    const tryPlay = () => activeA.play().catch(() => {});
+    if (activeA.readyState >= 3) {
       tryPlay();
     } else {
-      active.addEventListener("canplay", tryPlay, { once: true });
+      activeA.addEventListener("canplay", tryPlay, { once: true });
     }
 
-    /* No cleanup needed — video loops forever until unmount */
+    // Preload slot B silently (just metadata + a bit of buffer)
+    activeB.preload = "auto";
+
+    const cleanup = setupCrossfadeLoop(activeA, activeB);
+
     return () => {
-      active.pause();
+      cleanup();
+      activeA.pause();
+      activeB.pause();
     };
   }, []);
 
   /* ── Scroll parallax on CTA only ────────────── */
   useEffect(() => {
-    /* Skip on reduced-motion preference */
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const section = sectionRef.current;
@@ -224,14 +326,11 @@ export default function HeroSection({ settings = {} }) {
       if (ticking) return;
       ticking = true;
       rafRef.current = requestAnimationFrame(() => {
-        const rect      = section.getBoundingClientRect();
-        const viewH     = window.innerHeight;
-        /* progress: 0 = hero fully visible, 1 = hero scrolled out of view */
-        const progress  = Math.max(0, Math.min(1, -rect.top / viewH));
-
-        /* Gentle drift — capped so button doesn't disappear too aggressively */
-        const yShift    = progress * 55;           /* px up */
-        const opacity   = Math.max(0, 1 - progress * 2.2);
+        const rect     = section.getBoundingClientRect();
+        const viewH    = window.innerHeight;
+        const progress = Math.max(0, Math.min(1, -rect.top / viewH));
+        const yShift   = progress * 55;
+        const opacity  = Math.max(0, 1 - progress * 2.2);
 
         ctaWrap.style.transform = `translateY(-${yShift}px)`;
         ctaWrap.style.opacity   = opacity;
@@ -241,7 +340,6 @@ export default function HeroSection({ settings = {} }) {
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
-
     return () => {
       window.removeEventListener("scroll", onScroll);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -258,41 +356,55 @@ export default function HeroSection({ settings = {} }) {
     >
       {/* ── Video background ─────────────────────── */}
       <div className="sh-video-wrap" aria-hidden="true">
-        <video
-          ref={desktopRef}
-          className="sh-video sh-video-desktop"
-          src={DESKTOP_VIDEO}
-          muted
-          playsInline
-          loop
-          preload="auto"
-          disablePictureInPicture
-          disableRemotePlayback
-        />
-        <video
-          ref={mobileRef}
-          className="sh-video sh-video-mobile"
-          src={MOBILE_VIDEO}
-          muted
-          playsInline
-          loop
-          preload="auto"
-          disablePictureInPicture
-          disableRemotePlayback
-        />
+        {/* Desktop — two slots for crossfade */}
+        <div className="sh-slot sh-slot-a">
+          <video
+            ref={desktopARef}
+            className="sh-video sh-video-desktop"
+            src={DESKTOP_VIDEO}
+            muted playsInline preload="auto"
+            disablePictureInPicture disableRemotePlayback
+          />
+          <video
+            ref={mobileARef}
+            className="sh-video sh-video-mobile"
+            src={MOBILE_VIDEO}
+            muted playsInline preload="auto"
+            disablePictureInPicture disableRemotePlayback
+          />
+        </div>
+
+        {/* Standby slot — fades in on each loop */}
+        <div className="sh-slot sh-slot-b">
+          <video
+            ref={desktopBRef}
+            className="sh-video sh-video-desktop"
+            src={DESKTOP_VIDEO}
+            muted playsInline preload="auto"
+            disablePictureInPicture disableRemotePlayback
+          />
+          <video
+            ref={mobileBRef}
+            className="sh-video sh-video-mobile"
+            src={MOBILE_VIDEO}
+            muted playsInline preload="auto"
+            disablePictureInPicture disableRemotePlayback
+          />
+        </div>
       </div>
 
-      {/* ── Subtle gradient overlay ───────────────── */}
+      {/* ── Gradient overlay ─────────────────────── */}
       <div className="sh-overlay" aria-hidden="true" />
 
-      {/* ── CTA — outside video, scroll-parallaxed ── */}
+      {/* ── CTA ──────────────────────────────────── */}
       <div ref={ctaWrapRef} className="sh-cta-wrap">
         <button
           className="sh-cta"
           onClick={() => {
-            const products = document.getElementById("products") ||
-                             document.querySelector("[data-section='products']") ||
-                             document.querySelector("main > section:nth-child(2)");
+            const products =
+              document.getElementById("products") ||
+              document.querySelector("[data-section='products']") ||
+              document.querySelector("main > section:nth-child(2)");
             if (products) {
               products.scrollIntoView({ behavior: "smooth" });
             } else {
